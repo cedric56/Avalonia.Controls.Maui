@@ -30,7 +30,6 @@
   <!-- Non-browser: exclude browser-specific implementations -->
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'browser'">
     <Compile Remove="**/*.Browser.cs" />
-    <PackageReference Include="WindowsContracts.Net.Foundation.UniversalApiContract" Version="5.19041.10" />
   </ItemGroup>
 
   <ItemGroup Condition=" ('$(IsPackable)' == 'true')">
