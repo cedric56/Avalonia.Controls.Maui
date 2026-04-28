@@ -55,6 +55,11 @@
     <PackageReference Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
   </ItemGroup>
 
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' OR $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <PackageReference Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+  </ItemGroup>
+
+
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
     <PackageReference Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
   </ItemGroup>

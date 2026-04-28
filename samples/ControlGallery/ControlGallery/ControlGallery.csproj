@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>$(DotNetTfm);$(DotNetTfm)-browser;$(DotNetTfm)-android</TargetFrameworks>
@@ -84,8 +84,15 @@
 		<ProjectReference Condition="'$(TargetFramework)' == '$(DotNetTfm)'" Include="../../../src/Avalonia.Controls.Maui.Desktop/Avalonia.Controls.Maui.Desktop.csproj" />
 		<ProjectReference Include="../../../src/Avalonia.Controls.Maui/Avalonia.Controls.Maui.csproj" />
 		<ProjectReference Include="../../../src/Avalonia.Controls.Maui.Compatibility/Avalonia.Controls.Maui.Compatibility.csproj" />
-		<ProjectReference Include="../../../src/Avalonia.Controls.Maui.Essentials/Avalonia.Controls.Maui.Essentials.csproj" />
+		<ProjectReference Include="../../../src/Avalonia.Controls.Maui.Essentials/Avalonia.Controls.Maui.Essentials.csproj" 
+                      Condition="'$(TargetFramework)' != '$(DotNetTfm)-windows10.0.19041.0'"/>
 		<ProjectReference Include="../../../src/Avalonia.Controls.Maui.SourceGenerators/Avalonia.Controls.Maui.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" GlobalPropertiesToRemove="PublishAot" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Pages\SensorsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 	<Import Project="$(MauiSrcDirectory)Avalonia.Controls.Maui.props" />

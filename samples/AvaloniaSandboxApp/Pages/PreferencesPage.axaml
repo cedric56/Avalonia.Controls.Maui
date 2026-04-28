@@ -1,0 +1,150 @@
+<ContentPage xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AvaloniaSandboxApp.PreferencesPage">
+   <ScrollViewer>
+        <StackPanel Margin="20" Spacing="20">
+
+            <!-- String Preferences -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="String Preference"
+                               FontWeight="Bold"/>
+
+                    <TextBox x:Name="StringEntry"
+                             Watermark="Enter a value"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Save"
+                                Click="OnSaveStringClicked"/>
+                        <Button Content="Load"
+                                Click="OnLoadStringClicked"/>
+                        <Button Content="Remove"
+                                Click="OnRemoveStringClicked"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="StringResultLabel"
+                               Text="Value: --"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Numeric Preferences -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Counter (int preference)"
+                               FontWeight="Bold"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Button Content="Increment"
+                                Click="OnIncrementClicked"/>
+                        <Button Content="Reset"
+                                Click="OnResetCounterClicked"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="CounterLabel"
+                               Text="Count: 0"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Bool / Switch -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Boolean Preference"
+                               FontWeight="Bold"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="Notifications enabled:"
+                                   VerticalAlignment="Center"/>
+
+                        <ToggleSwitch x:Name="BoolSwitch" IsThreeState="False"
+                                      IsCheckedChanged="OnBoolSwitchToggled"/>
+                    </StackPanel>
+
+                    <TextBlock x:Name="BoolResultLabel"
+                               Text="Stored: --"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- DateTime -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="DateTime Preference"
+                               FontWeight="Bold"/>
+
+                    <Button Content="Save Current Time"
+                            Click="OnSaveDateTimeClicked"/>
+
+                    <Button Content="Load Saved Time"
+                            Click="OnLoadDateTimeClicked"/>
+
+                    <TextBlock x:Name="DateTimeResultLabel"
+                               Text="Saved: --"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Shared Containers -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Shared Containers"
+                               FontWeight="Bold"/>
+
+                    <TextBlock Text="Same key stored in two containers:"
+                               FontSize="13"/>
+
+                    <Button Content="Save to Both"
+                            Click="OnSaveSharedClicked"/>
+
+                    <TextBlock x:Name="SharedDefaultLabel"
+                               Text="Default: --"
+                               FontStyle="Italic"/>
+
+                    <TextBlock x:Name="SharedNamedLabel"
+                               Text="Named: --"
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Danger Zone -->
+            <Border BorderBrush="Gray"
+                    BorderThickness="1"
+                    Padding="10"
+                    CornerRadius="10">
+                <StackPanel Spacing="10">
+                    <TextBlock Text="Danger Zone"
+                               FontWeight="Bold"
+                               Foreground="Red"/>
+
+                    <Button Content="Clear All Preferences"
+                            Foreground="Red"
+                            Click="OnClearAllClicked"/>
+
+                    <TextBlock x:Name="ClearResultLabel"
+                               Text=""
+                               FontStyle="Italic"/>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</ContentPage>

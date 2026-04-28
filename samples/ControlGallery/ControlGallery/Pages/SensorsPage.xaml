@@ -1,0 +1,124 @@
+<ContentPage x:Class="ControlGallery.Pages.SensorsPage"
+             Title="Sensors">
+    <ScrollView>
+        <VerticalStackLayout Padding="20"
+                         Spacing="20">
+
+
+            <!-- Accelerometer -->
+            <Border Stroke="Gray"
+                Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Accelerometer"
+                       FontAttributes="Bold"/>
+                    <Button Text="Start"
+                        Clicked="OnAccelerometerStart"/>
+                    <Button Text="Stop"
+                        Clicked="OnAccelerometerStop"/>
+                    <Label x:Name="AccelerometerLabel"
+                       Text="File: --"
+                       FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Barometer -->
+            <Border Stroke="Gray"
+    Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Barometer"
+           FontAttributes="Bold"/>
+                    <Button Text="Start"
+            Clicked="OnBarometerStart"/>
+                    <Button Text="Stop"
+            Clicked="OnBarometerStop"/>
+                    <Label x:Name="BarometerLabel"
+           Text="File: --"
+           FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Compass -->
+            <Border Stroke="Gray"
+    Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Compass"
+           FontAttributes="Bold"/>
+                    <Button Text="Start"
+            Clicked="OnCompassStart"/>
+                    <Button Text="Stop"
+            Clicked="OnCompassStop"/>
+                    <Label x:Name="CompassLabel"
+           Text="File: --"
+           FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Gyroscope -->
+            <Border Stroke="Gray"
+Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Gyroscope"
+       FontAttributes="Bold"/>
+                    <Button Text="Start"
+        Clicked="OnGyroscopeStart"/>
+                    <Button Text="Stop"
+        Clicked="OnGyroscopeStop"/>
+                    <Label x:Name="GyroscopeLabel"
+       Text="File: --"
+       FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Magnetometer -->
+            <Border Stroke="Gray"
+    Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Magnetometer"
+           FontAttributes="Bold"/>
+                    <Button Text="Start"
+            Clicked="OnMagnetometerStart"/>
+                    <Button Text="Stop"
+            Clicked="OnMagnetometerStop"/>
+                    <Label x:Name="MagnetometerLabel"
+           Text="File: --"
+           FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- OrientationSensor -->
+            <Border Stroke="Gray"
+Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="OrientationSensor"
+       FontAttributes="Bold"/>
+                    <Button Text="Start"
+        Clicked="OnOrientationSensorStart"/>
+                    <Button Text="Stop"
+        Clicked="OnOrientationSensorStop"/>
+                    <Label x:Name="OrientationSensorLabel"
+       Text="File: --"
+       FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
