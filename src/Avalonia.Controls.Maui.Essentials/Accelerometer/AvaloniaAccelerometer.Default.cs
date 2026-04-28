@@ -1,142 +1,31 @@
-﻿using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices.Sensors;
-using System.Runtime.Versioning;
-using Windows.Devices.Sensors;
-using Sensor = Windows.Devices.Sensors.Accelerometer;
+﻿using Microsoft.Maui.Devices.Sensors;
 
 namespace Avalonia.Controls.Maui.Essentials
 {
-    /// <summary>
-    /// Base platform-agnostic implementation for accelerometer.
-    /// Provides default behavior for unsupported platforms - throws feature not supported exceptions.
-    /// Platform-specific implementations override the virtual methods to provide actual sensor functionality.
-    /// The accelerometer measures acceleration forces in m/s² including gravity.
-    /// </summary>
-    partial class AvaloniaAccelerometer
-    {
-        /// <summary>
-        /// Indicates whether the accelerometer is supported on the current platform.
-        /// Base implementation returns false, indicating no support.
-        /// Platform-specific implementations override this to return actual support status.
-        /// </summary>
-        public override bool IsSupported => false;
-
-        /// <summary>
-        /// Platform-specific implementation to start accelerometer monitoring.
-        /// Base implementation throws FeatureNotSupportedException.
-        /// </summary>
-        /// <param name="sensorSpeed">Desired sensor update speed/precision</param>
-        protected override void PlatformStart(SensorSpeed sensorSpeed) =>
-            throw new FeatureNotSupportedException();
-
-        /// <summary>
-        /// Platform-specific implementation to stop accelerometer monitoring.
-        /// Base implementation throws FeatureNotSupportedException.
-        /// </summary>
-        protected override void PlatformStop() =>
-            throw new FeatureNotSupportedException();
-    }
-
-    /// <summary>
-    /// Windows-specific implementation of accelerometer using the UWP Windows.Devices.Sensors.Accelerometer API.
-    /// Supported on Windows 10 build 10240 and later.
-    /// Measures acceleration forces in m/s² including gravity.
-    /// Note: Values are negated to align coordinate systems between Windows and MAUI.
-    /// </summary>
-    [SupportedOSPlatform("windows10.0.10240")]
-    class WindowsAccelerometer : AvaloniaAccelerometer
-    {
-        // Keep a reference to the sensor so we can clean up and stop the same instance
-        Sensor? sensor;
-
-        /// <summary>
-        /// Gets the default accelerometer sensor on the Windows device.
-        /// Returns null if no accelerometer is present.
-        /// </summary>
-        internal static Sensor Sensor =>
-            Sensor.GetDefault();
-
-        /// <summary>
-        /// Indicates whether an accelerometer is available on this Windows device.
-        /// Returns true if the default sensor exists, false otherwise.
-        /// </summary>
-        public override bool IsSupported => Sensor != null;
-
-        /// <summary>
-        /// Starts the Windows accelerometer with the specified sensor speed.
-        /// Configures the report interval based on the requested speed and minimum sensor capabilities.
-        /// </summary>
-        /// <param name="sensorSpeed">Desired sensor update frequency/precision</param>
-        protected override void PlatformStart(SensorSpeed sensorSpeed)
-        {
-            // Convert SensorSpeed enum to interval in milliseconds
-            var interval = sensorSpeed.ToPlatform();
-
-            // Get the default accelerometer sensor
-            sensor = Sensor;
-
-            // Set the report interval - use the larger of requested interval or sensor's minimum
-            // This respects both the app's desired update rate and the sensor's hardware limitations
-            sensor.ReportInterval = sensor.MinimumReportInterval >= interval ? sensor.MinimumReportInterval : interval;
-
-            // Subscribe to reading changed events
-            sensor.ReadingChanged += DataUpdated;
-        }
-
-        /// <summary>
-        /// Event handler for Windows accelerometer readings.
-        /// Converts Windows sensor data to MAUI format and forwards to the base implementation.
-        /// Note: Values are negated to align coordinate systems between Windows and MAUI.
-        /// Windows uses a different axis orientation than MAUI's expected coordinate system.
-        /// </summary>
-        /// <param name="sender">The accelerometer sensor object</param>
-        /// <param name="e">Event args containing the accelerometer reading</param>
-        void DataUpdated(object sender, AccelerometerReadingChangedEventArgs e)
-        {
-            var reading = e.Reading;
-            // Negate X and Y values to convert from Windows coordinate system to MAUI coordinate system
-            // Windows and MAUI use different axis orientations for acceleration vectors
-            var data = new AccelerometerData(reading.AccelerationX * -1, reading.AccelerationY * -1, reading.AccelerationZ * -1);
-            OnChanged(new AccelerometerChangedEventArgs(data));
-        }
-
-        /// <summary>
-        /// Stops the Windows accelerometer.
-        /// Unsubscribes from events and resets the report interval to default.
-        /// </summary>
-        protected override void PlatformStop()
-        {
-            if (sensor == null)
-                return;
-
-            // Unsubscribe from reading events
-            sensor.ReadingChanged -= DataUpdated;
-
-            // Reset report interval to 0 (default, no minimum interval)
-            sensor.ReportInterval = 0;
-
-            // Release the sensor reference
-            sensor = null;
-        }
-    }
-
     /// <summary>
     /// Linux-specific implementation of accelerometer using the Linux Industrial I/O (IIO) subsystem.
     /// Reads accelerometer data directly from sysfs files in /sys/bus/iio/devices/.
     /// Uses polling since Linux doesn't provide event-based sensor APIs by default.
     /// Measures acceleration forces in m/s² after applying scale factors.
     /// </summary>
-    class LinuxAccelerometer : AvaloniaAccelerometer
+    class LinuxAccelerometer : AccelerometerImplementation, IAccelerometer
     {
         private CancellationTokenSource? _cts;      // Token source for cancelling the polling loop
         private Task? _pollingTask;                 // Background task for polling sensor data
         private readonly string? _devicePath;       // Path to the IIO device directory (e.g., /sys/bus/iio/devices/iio:device0)
 
+        
+        private bool _isMonitoring;
+
         /// <summary>
         /// Indicates whether an accelerometer was found in the Linux IIO subsystem.
         /// Returns true if a device with accelerometer files was discovered.
         /// </summary>
-        public override bool IsSupported => _devicePath != null;
+        bool IAccelerometer.IsSupported => _devicePath != null;
+
+        bool IAccelerometer.IsMonitoring => _isMonitoring;
+
+        public new bool IsMonitoring => _isMonitoring;
 
         /// <summary>
         /// Constructor - attempts to locate an accelerometer device in the Linux IIO subsystem.
@@ -168,10 +57,12 @@ namespace Avalonia.Controls.Maui.Essentials
         /// Launches a background task that continuously reads sensor data from sysfs files.
         /// </summary>
         /// <param name="sensorSpeed">Desired sensor update frequency (used to determine polling interval)</param>
-        protected override void PlatformStart(SensorSpeed sensorSpeed)
+        void IAccelerometer.Start(SensorSpeed sensorSpeed)
         {
             if (_devicePath == null)
                 throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
+
+            _isMonitoring = true;
 
             // Convert SensorSpeed to polling interval in milliseconds
             var interval = sensorSpeed.ToPlatform();
@@ -187,7 +78,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// Stops polling the Linux accelerometer.
         /// Cancels the background task and waits for it to complete.
         /// </summary>
-        protected async override void PlatformStop()
+        async void IAccelerometer.Stop()
         {
             if (_devicePath is not null)
             {
@@ -204,6 +95,10 @@ namespace Avalonia.Controls.Maui.Essentials
                     catch (OperationCanceledException)
                     {
                         // Expected exception when cancellation is requested - swallow it
+                    }
+                    finally
+                    {
+                        _isMonitoring = false;
                     }
                 }
             }

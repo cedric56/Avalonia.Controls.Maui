@@ -1,10 +1,6 @@
 using Avalonia;
 using Avalonia.Browser;
-using Avalonia.Controls;
-using Avalonia.Controls.Maui;
 using Avalonia.Media;
-using System;
-using System.Threading.Tasks;
 
 namespace ControlGallery.Browser;
 

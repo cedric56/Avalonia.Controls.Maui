@@ -8,8 +8,15 @@ namespace Avalonia.Controls.Maui.Essentials
     /// This partial class provides the JavaScript interop layer that connects .NET accelerometer
     /// APIs to browser-based sensor APIs (DeviceMotionEvent).
     /// </summary>
-    partial class AvaloniaAccelerometer
+    partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
     {
+        private bool _isMonitoring;
+        bool IAccelerometer.IsSupported => true;
+
+        bool IAccelerometer.IsMonitoring => _isMonitoring;
+
+        public new bool IsMonitoring => _isMonitoring;
+
         /// <summary>
         /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
         /// This method is imported from the JavaScript module and calls the Web API to begin
@@ -58,12 +65,12 @@ namespace Avalonia.Controls.Maui.Essentials
             }
         }
 
-        /// <summary>
-        /// Indicates whether the accelerometer is supported in the current browser environment.
-        /// For WebAssembly, this always returns true as support detection is handled
-        /// by the JavaScript interop layer checking for DeviceMotionEvent availability.
-        /// </summary>
-        public override bool IsSupported => true;
+        ///// <summary>
+        ///// Indicates whether the accelerometer is supported in the current browser environment.
+        ///// For WebAssembly, this always returns true as support detection is handled
+        ///// by the JavaScript interop layer checking for DeviceMotionEvent availability.
+        ///// </summary>
+        //public override bool IsSupported => true;
 
         /// <summary>
         /// Platform-specific implementation to start the accelerometer.
@@ -77,22 +84,27 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - SensorSpeed.UI → ~15 Hz (good for UI updates)
         /// - SensorSpeed.Default → ~10 Hz (balanced default)
         /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
-        protected async override void PlatformStart(SensorSpeed sensorSpeed)
+        async void IAccelerometer.Start(SensorSpeed sensorSpeed)
         {
             // Ensure the JavaScript sensor module is fully loaded and initialized
             // ConfigureAwait(false) prevents deadlocks when called from UI contexts
             await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
 
+            _isMonitoring = true;
             // Convert SensorSpeed enum to platform-specific frequency (Hz) and start listening
             // ToPlatform() maps sensor speed to appropriate Hz values for WebAssembly
             StartListening((int)sensorSpeed.ToPlatform());
+
         }
 
         /// <summary>
         /// Platform-specific implementation to stop the accelerometer.
         /// Simply calls the JavaScript function to remove event listeners and stop updates.
         /// </summary>
-        protected override void PlatformStop() =>
+        void IAccelerometer.Stop()
+        {
             StopListening();
+            _isMonitoring = false;
+        }
     }
 }
