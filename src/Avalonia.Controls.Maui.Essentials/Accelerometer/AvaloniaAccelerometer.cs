@@ -51,7 +51,15 @@ namespace Avalonia.Controls.Maui.Essentials
 
             _isMonitoring = true;
 
-            PlatformStart(sensorSpeed);
+            try
+            {
+                PlatformStart(sensorSpeed);
+            }
+            catch
+            {
+                _isMonitoring = false;
+                throw;
+            }
         }
 
         /// <summary>
@@ -67,13 +75,16 @@ namespace Avalonia.Controls.Maui.Essentials
             if (!IsMonitoring)
                 return;
 
+            _isMonitoring = false;
+
             try
             {
                 PlatformStop();
             }
-            finally
+            catch
             {
-                _isMonitoring = false; // Ensure we reset the monitoring state even if stopping fails
+                _isMonitoring = true;
+                throw;
             }
         }
     }
