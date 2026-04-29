@@ -16,10 +16,12 @@ export const accelerometerInterop = {
                 if (now - this.lastUpdateTime < interval) return;
                 this.lastUpdateTime = now;
 
+                const accelerationIncludingGravity = event.accelerationIncludingGravity;
+
                 exports.Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer.OnReadingChanged(
-                    event.accelerationIncludingGravity.x || 0,
-                    event.accelerationIncludingGravity.y || 0,
-                    event.accelerationIncludingGravity.z || 0
+                    accelerationIncludingGravity?.x || 0,
+                    accelerationIncludingGravity?.y || 0,
+                    accelerationIncludingGravity?.z || 0
                 );
             }
 
