@@ -68,8 +68,7 @@ partial class AvaloniaAccelerometer
     /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
     async void PlatformStart(SensorSpeed sensorSpeed)
     {
-        // Ensure the JavaScript sensor module is fully loaded and initialized
-        // ConfigureAwait(false) prevents deadlocks when called from UI contexts
+        //Modules must be loaded before to suppress async void !!!
         await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
 
         StartListening(GetFrequency(sensorSpeed), OnReadingChanged);
