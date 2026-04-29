@@ -13,7 +13,7 @@ public partial class SensorsPage : ContentPage
     {
         if (Accelerometer.IsSupported)
         {
-            Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;            
+            Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
             Accelerometer.Start(SensorSpeed.Default);
         }
     }

@@ -47,11 +47,6 @@ partial class AvaloniaAccelerometer
     /// Positive values indicate acceleration forward.</param>
     /// <param name="z">Acceleration along the Z-axis (up/down) in m/s², including gravity.
     /// Positive values indicate acceleration upward.</param>
-    /// <remarks>
-    /// The acceleration includes gravity, meaning when the device is stationary,
-    /// the values represent the orientation of the device relative to Earth's gravity.
-    /// For example, a device lying flat on a table would have Z ≈ 9.81, X ≈ 0, Y ≈ 0.
-    /// </remarks>
     public void OnReadingChanged(double x, double y, double z)
     {
         // Create event args with the acceleration data (expressed in m/s²)
