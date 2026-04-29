@@ -56,30 +56,51 @@ partial class AvaloniaAccelerometer
         _cts = new CancellationTokenSource();
 
         // Start the background polling task
-        _pollingTask = Task.Run(() => PollingLoop(sensorSpeed, _cts.Token));
+        _pollingTask = Task.Run(() => PollingLoop(sensorSpeed), _cts.Token);
     }
 
     /// <summary>
     /// Stops polling the Linux accelerometer.
     /// Cancels the background task and waits for it to complete.
     /// </summary>
-    async void PlatformStop()
+    void PlatformStop()
     {
-        // Signal the polling loop to stop
-        _cts?.Cancel();
+        if (_cts == null) 
+            return;
 
-        if (_pollingTask != null)
+        CancellationTokenSource? cts = _cts;
+        Task? task = _pollingTask;
+
+        // Signal the polling loop to stop
+        _cts.Cancel();
+
+        if (task != null)
         {
-            try
+            _ = Task.Run(async () =>
             {
-                // Wait for the polling task to complete gracefully
-                await _pollingTask;
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected exception when cancellation is requested - swallow it
-            }
+                try
+                {
+                    // Wait for the polling task to complete gracefully
+                    await task.ConfigureAwait(false);
+                }
+                catch
+                {
+                    // Ignore all exceptions during shutdown
+                }
+                finally
+                {
+                    cts?.Dispose();
+                }
+            });
         }
+        else
+        {
+            cts?.Dispose();
+        }
+
+        _pollingTask = null;
+        _cts.Dispose();
+        _cts = null;
     }
 
     /// <summary>
@@ -87,11 +108,13 @@ partial class AvaloniaAccelerometer
     /// Runs on a background thread until cancellation is requested.
     /// </summary>
     /// <param name="sensorSpeed">Sensor speed (used to determine polling delay)</param>
-    /// <param name="token">Cancellation token to stop the polling loop</param>
-    private void PollingLoop(SensorSpeed sensorSpeed, CancellationToken token)
+    private void PollingLoop(SensorSpeed sensorSpeed)
     {
         if (_devicePath == null)
             throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
+
+        if(_cts == null)
+            throw new InvalidOperationException("Polling loop started without a cancellation token source.");
 
         // Determine polling interval from sensor speed
         var interval = GetInterval(sensorSpeed);
@@ -113,7 +136,7 @@ partial class AvaloniaAccelerometer
         double zScale = File.Exists(zScaleFile) ? double.Parse(File.ReadAllText(zScaleFile), CultureInfo.InvariantCulture) : 1.0;
 
         // Continue polling until cancellation is requested
-        while (!token.IsCancellationRequested)
+        while (!_cts.Token.IsCancellationRequested)
         {
             try
             {
@@ -133,8 +156,7 @@ partial class AvaloniaAccelerometer
             }
 
             // Wait for the specified interval before the next reading, but stop promptly if cancellation is requested
-            if (token.WaitHandle.WaitOne((int)interval))
-                break;
+            _cts.Token.WaitHandle.WaitOne(interval);
         }
     }
 
@@ -143,7 +165,7 @@ partial class AvaloniaAccelerometer
         SensorSpeed.Default => 200,  // ~5 Hz
         SensorSpeed.UI => 66,   // ~15 Hz
         SensorSpeed.Game => 33,   // ~30 Hz
-        SensorSpeed.Fastest => 1,    // As fast as possible
+        SensorSpeed.Fastest => 10,    // As fast as possible
         _ => 100
     };
 }
