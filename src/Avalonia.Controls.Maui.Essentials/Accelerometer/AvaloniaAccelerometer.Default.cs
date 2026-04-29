@@ -163,10 +163,10 @@ partial class AvaloniaAccelerometer
 
     private int GetInterval(SensorSpeed speed) => speed switch
     {
-        SensorSpeed.Default => 200,  // ~5 Hz
-        SensorSpeed.UI => 66,   // ~15 Hz
-        SensorSpeed.Game => 33,   // ~30 Hz
-        SensorSpeed.Fastest => 10,    // As fast as possible
+        SensorSpeed.Default => 200,   // 5 Hz - Battery efficient, good for orientation
+        SensorSpeed.UI => 50,         // 20 Hz - Smooth UI updates (66ms was fine too)
+        SensorSpeed.Game => 20,       // 50 Hz - Better for game physics
+        SensorSpeed.Fastest => 10,    // 100 Hz - Maximum practical rate on Linux
         _ => 100
     };
 }
