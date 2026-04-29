@@ -147,8 +147,9 @@ namespace Avalonia.Controls.Maui.Essentials
                     Console.Error.WriteLine($"Error reading accelerometer: {ex.Message}");
                 }
 
-                // Wait for the specified interval before the next reading
-                Thread.Sleep((int)interval);
+                // Wait for the specified interval before the next reading, but stop promptly if cancellation is requested
+                if (token.WaitHandle.WaitOne((int)interval))
+                    break;
             }
         }
     }
