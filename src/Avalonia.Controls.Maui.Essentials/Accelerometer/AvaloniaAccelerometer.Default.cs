@@ -14,6 +14,7 @@ partial class AvaloniaAccelerometer
     private CancellationTokenSource? _cts;      // Token source for cancelling the polling loop
     private Task? _pollingTask;                 // Background task for polling sensor data
     private readonly string? _devicePath;       // Path to the IIO device directory (e.g., /sys/bus/iio/devices/iio:device0)
+    private readonly object _lock = new();
 
     bool PlatformIsSupported() => _devicePath != null;
 
@@ -49,14 +50,11 @@ partial class AvaloniaAccelerometer
     /// <param name="sensorSpeed">Desired sensor update frequency (used to determine polling interval)</param>
     void PlatformStart(SensorSpeed sensorSpeed)
     {   
-        // Convert SensorSpeed to polling interval in milliseconds
-        var interval = GetInterval(sensorSpeed);
-
         // Create cancellation token source for stopping the polling loop
         _cts = new CancellationTokenSource();
 
         // Start the background polling task
-        _pollingTask = Task.Run(() => PollingLoop(sensorSpeed), _cts.Token);
+        _pollingTask = RunPollingAsync(sensorSpeed, _cts.Token);
     }
 
     /// <summary>
@@ -65,28 +63,30 @@ partial class AvaloniaAccelerometer
     /// </summary>
     void PlatformStop()
     {
-        if (_cts == null) 
-            return;
+        CancellationTokenSource? cts;
+        Task? task;
 
-        CancellationTokenSource? cts = _cts;
-        Task? task = _pollingTask;
+        lock (_lock)
+        {
+            cts = _cts;
+            task = _pollingTask;
 
-        // Signal the polling loop to stop
-        _cts.Cancel();
+            _cts = null;
+            _pollingTask = null;
+        }
+
+        cts?.Cancel();
 
         if (task != null)
         {
+            // Fire-and-forget wait with timeout - best compromise
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    // Wait for the polling task to complete gracefully
-                    await task.ConfigureAwait(false);
+                    await task.WaitAsync(TimeSpan.FromSeconds(2));
                 }
-                catch
-                {
-                    // Ignore all exceptions during shutdown
-                }
+                catch { }
                 finally
                 {
                     cts?.Dispose();
@@ -97,10 +97,6 @@ partial class AvaloniaAccelerometer
         {
             cts?.Dispose();
         }
-
-        _pollingTask = null;
-        _cts.Dispose();
-        _cts = null;
     }
 
     /// <summary>
@@ -108,18 +104,13 @@ partial class AvaloniaAccelerometer
     /// Runs on a background thread until cancellation is requested.
     /// </summary>
     /// <param name="sensorSpeed">Sensor speed (used to determine polling delay)</param>
-    private void PollingLoop(SensorSpeed sensorSpeed)
+    /// <param name="token"></param>
+    private async Task RunPollingAsync(SensorSpeed sensorSpeed, CancellationToken token)
     {
-        if (_devicePath == null)
-            throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
+        if (_devicePath == null) return;
 
-        if(_cts == null)
-            throw new InvalidOperationException("Polling loop started without a cancellation token source.");
+        var intervalMs = GetInterval(sensorSpeed);
 
-        // Determine polling interval from sensor speed
-        var interval = GetInterval(sensorSpeed);
-
-        // Construct paths to raw data files for each axis
         string xRaw = Path.Combine(_devicePath, "in_accel_x_raw");
         string yRaw = Path.Combine(_devicePath, "in_accel_y_raw");
         string zRaw = Path.Combine(_devicePath, "in_accel_z_raw");
@@ -135,8 +126,8 @@ partial class AvaloniaAccelerometer
         double yScale = File.Exists(yScaleFile) ? double.Parse(File.ReadAllText(yScaleFile), CultureInfo.InvariantCulture) : 1.0;
         double zScale = File.Exists(zScaleFile) ? double.Parse(File.ReadAllText(zScaleFile), CultureInfo.InvariantCulture) : 1.0;
 
-        // Continue polling until cancellation is requested
-        while (!_cts.Token.IsCancellationRequested)
+
+        while (!token.IsCancellationRequested)
         {
             try
             {
@@ -145,21 +136,16 @@ partial class AvaloniaAccelerometer
                 double y = int.Parse(File.ReadAllText(yRaw), CultureInfo.InvariantCulture) * yScale;
                 double z = int.Parse(File.ReadAllText(zRaw), CultureInfo.InvariantCulture) * zScale;
 
-                // Create MAUI accelerometer data and raise the Changed event
-                var data = new AccelerometerData(x, y, z);
-                OnChanged(new AccelerometerChangedEventArgs(data));
+                OnChanged(new AccelerometerChangedEventArgs(new AccelerometerData(x, y, z)));
             }
             catch (Exception ex)
             {
-                // Log errors but continue polling to maintain sensor functionality
-                Console.Error.WriteLine($"Error reading accelerometer: {ex.Message}");
+                Console.Error.WriteLine($"IIO read error: {ex.Message}");
             }
 
-            // Wait for the specified interval before the next reading, but stop promptly if cancellation is requested
-            if (_cts.Token.WaitHandle.WaitOne(interval))
-                break;
+            await Task.Delay(intervalMs, token).ConfigureAwait(false);
         }
-    }
+    }        
 
     private int GetInterval(SensorSpeed speed) => speed switch
     {
