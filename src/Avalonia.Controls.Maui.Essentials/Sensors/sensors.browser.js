@@ -7,7 +7,7 @@ export const accelerometerInterop = {
     startListening: function (frequency) {
 
         this.frequency = frequency;
-        if ('DeviceOrientationEvent' in window) {
+        if ('DeviceMotionEvent' in window) {
 
             function onDeviceMotion(event) {
                 const now = Date.now();
@@ -23,8 +23,8 @@ export const accelerometerInterop = {
                 );
             }
 
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
                     .then(permissionState => {
                         if (permissionState === 'granted') {
                             window.ondevicemotion = onDeviceMotion;
@@ -38,7 +38,7 @@ export const accelerometerInterop = {
         }
     },
     stopListening: function () {
-        if ('DeviceOrientationEvent' in window)
+        if ('DeviceMotionEvent' in window)
             window.ondevicemotion = null;
         this.lastUpdateTime = 0;
     }
