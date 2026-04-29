@@ -156,7 +156,8 @@ partial class AvaloniaAccelerometer
             }
 
             // Wait for the specified interval before the next reading, but stop promptly if cancellation is requested
-            _cts.Token.WaitHandle.WaitOne(interval);
+            if (_cts.Token.WaitHandle.WaitOne(interval))
+                break;
         }
     }
 

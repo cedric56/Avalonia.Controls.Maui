@@ -83,19 +83,15 @@ partial class AvaloniaAccelerometer
         StopListening();
     }
 
-    private int GetFrequency(SensorSpeed sensorSpeed)
+    private static int GetFrequency(SensorSpeed sensorSpeed)
     {
-        switch (sensorSpeed)
+        return sensorSpeed switch
         {
-            case SensorSpeed.Default:
-                return 10;
-            case SensorSpeed.UI:
-                return 15;
-            case SensorSpeed.Game:
-                return 30;
-            case SensorSpeed.Fastest:
-                return 60;
-        }
-        return 10;
+            SensorSpeed.Default => 10,
+            SensorSpeed.UI => 15,
+            SensorSpeed.Game => 30,
+            SensorSpeed.Fastest => 60,
+            _ => 10,
+        };
     }
 }
