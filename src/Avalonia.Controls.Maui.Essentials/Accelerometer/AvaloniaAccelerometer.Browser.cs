@@ -10,16 +10,21 @@ namespace Avalonia.Controls.Maui.Essentials;
 /// </summary>
 partial class AvaloniaAccelerometer
 {
+    public AvaloniaAccelerometer()
+    {
+        _ = JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
+    }
+
     bool PlatformIsSupported() => true;
 
-    ///// <summary>
-    ///// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
-    ///// This method is imported from the JavaScript module and calls the Web API to begin
-    ///// receiving accelerometer updates from the device's motion sensors.
-    ///// </summary>
-    ///// <param name="frequency">Desired update frequency in Hz (updates per second).
-    ///// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
-    ///// <param name="onReadingChanged">Callback for handling accelerometer readings</param>        
+    /// <summary>
+    /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
+    /// This method is imported from the JavaScript module and calls the Web API to begin
+    /// receiving accelerometer updates from the device's motion sensors.
+    /// </summary>
+    /// <param name="frequency">Desired update frequency in Hz (updates per second).
+    /// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
+    /// <param name="onReadingChanged">Callback for handling accelerometer readings</param>        
     [JSImport("accelerometerInterop.startListening", JSSensors.ModuleName)]
     public static partial void StartListening(int frequency, [JSMarshalAs<JSType.Function<JSType.Number, JSType.Number, JSType.Number>>] Action<double, double, double> onReadingChanged);
 
@@ -56,21 +61,15 @@ partial class AvaloniaAccelerometer
 
     /// <summary>
     /// Platform-specific implementation to start the accelerometer.
-    /// This method ensures the JavaScript module is loaded before attempting to start
-    /// the sensor listeners.
     /// </summary>
     /// <param name="sensorSpeed">The desired speed/precision of sensor updates.
     /// This is converted to a frequency value (Hz) using the ToPlatform() extension method:
     /// - SensorSpeed.Fastest → ~60 Hz (maximum frequency)
     /// - SensorSpeed.Game → ~30 Hz (good for real-time)
     /// - SensorSpeed.UI → ~15 Hz (good for UI updates)
-    /// - SensorSpeed.Default → ~10 Hz (balanced default)
-    /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
-    async void PlatformStart(SensorSpeed sensorSpeed)
+    /// - SensorSpeed.Default → ~10 Hz (balanced default)</param>
+    void PlatformStart(SensorSpeed sensorSpeed)
     {
-        //Modules must be loaded before to suppress async void !!!
-        await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
-
         StartListening(GetFrequency(sensorSpeed), OnReadingChanged);
     }
 
