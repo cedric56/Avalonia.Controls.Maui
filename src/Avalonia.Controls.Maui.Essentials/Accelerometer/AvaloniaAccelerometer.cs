@@ -1,84 +1,81 @@
 ﻿using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices.Sensors;
 
-namespace Avalonia.Controls.Maui.Essentials
+namespace Avalonia.Controls.Maui.Essentials;
+
+partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
 {
-    partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
+    /// <summary>
+    /// Indicates whether the accelerometer is currently monitoring sensor readings.
+    /// Public version that hides the base implementation (using 'new' keyword).
+    /// </summary>
+    public new bool IsMonitoring { get; private set; }
+
+    /// <summary>
+    /// Indicates whether the accelerometer is currently supportd sensor.
+    /// Public version that hides the base implementation (using 'new' keyword).
+    /// Returning value define by platform-specific implementation of PlatformIsSupported property.
+    /// </summary>
+    public new bool IsSupported => PlatformIsSupported();
+
+    /// <summary>
+    /// Starts monitoring accelerometer readings at the specified speed/frequency.
+    /// </summary>
+    /// <param name="sensorSpeed">
+    /// The desired speed/update frequency of the sensor readings.
+    /// </param>
+    /// <exception cref="FeatureNotSupportedException">
+    /// Thrown when the device doesn't have an accelerometer or sensor access is unavailable.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if Start() is called when the accelerometer is already monitoring.
+    /// Call Stop() first before restarting.
+    /// </exception>
+    void IAccelerometer.Start(SensorSpeed sensorSpeed)
     {
-        /// <summary>
-        /// Indicates whether the accelerometer is currently monitoring sensor readings.
-        /// Public version that hides the base implementation (using 'new' keyword).
-        /// </summary>
-        public new bool IsMonitoring { get; private set; }
+        if (!IsSupported)
+            throw new FeatureNotSupportedException();
 
-        ///// <summary>
-        ///// Indicates whether the accelerometer is currently supportd sensor.
-        ///// Public version that hides the base implementation (using 'new' keyword).
-        ///// Returning value define by platform-specific implementation of PlatformIsSupported property.
-        ///// </summary>
-        public new bool IsSupported => PlatformIsSupported();
+        if (IsMonitoring)
+            throw new InvalidOperationException("Accelerometer has already been started.");
 
-        /// <summary>
-        /// Starts monitoring accelerometer readings at the specified speed/frequency.
-        /// </summary>
-        /// <param name="sensorSpeed">
-        /// The desired speed/update frequency of the sensor readings.
-        /// </param>
-        /// <exception cref="FeatureNotSupportedException">
-        /// Thrown when the device doesn't have an accelerometer or sensor access is unavailable.
-        /// </exception>
-        /// <exception cref="InvalidOperationException">
-        /// Thrown if Start() is called when the accelerometer is already monitoring.
-        /// Call Stop() first before restarting.
-        /// </exception>
-        void IAccelerometer.Start(SensorSpeed sensorSpeed)
+        IsMonitoring = true;
+
+        try
         {
-            if (!IsSupported)
-                throw new FeatureNotSupportedException();
-
-            if (IsMonitoring)
-                throw new InvalidOperationException("Accelerometer has already been started.");
-
-            IsMonitoring = true;
-
-            try
-            {
-                PlatformStart(sensorSpeed);
-            }
-            catch
-            {
-                IsMonitoring = false;
-                throw;
-            }
+            PlatformStart(sensorSpeed);
         }
-
-        /// <summary>
-        /// Stops monitoring accelerometer readings and releases sensor resources.
-        /// </summary>
-        /// <remarks>
-        /// This method is safe to call even if the accelerometer isn't currently monitoring.
-        /// PlatformStop() may throw exceptions (e.g., if sensor hardware fails), but we ensure
-        /// _isMonitoring is reset in a finally block to maintain a consistent state.
-        /// </remarks>
-        void IAccelerometer.Stop()
+        catch
         {
-            if (!IsSupported)
-                throw new FeatureNotSupportedException();
-
-            if (!IsMonitoring)
-                return;
-
             IsMonitoring = false;
+            throw;
+        }
+    }
 
-            try
-            {
-                PlatformStop();
-            }
-            catch
-            {
-                IsMonitoring = true;
-                throw;
-            }
+    /// <summary>
+    /// Stops monitoring accelerometer readings and releases sensor resources.
+    /// </summary>
+    /// <exception cref="FeatureNotSupportedException">
+    /// Thrown when the device doesn't have an accelerometer or sensor access is unavailable.
+    /// </exception>
+    void IAccelerometer.Stop()
+    {
+        if (!IsSupported)
+            throw new FeatureNotSupportedException();
+
+        if (!IsMonitoring)
+            return;
+
+        IsMonitoring = false;
+
+        try
+        {
+            PlatformStop();
+        }
+        catch
+        {
+            IsMonitoring = true;
+            throw;
         }
     }
 }
