@@ -12,11 +12,25 @@ namespace Avalonia.Controls.Maui.Essentials
 
         void IAccelerometer.Start(SensorSpeed sensorSpeed)
         {
+            if (IsMonitoring)
+                throw new InvalidOperationException("Accelerometer has already been started.");
+
             PlatformStart(sensorSpeed);
         }
+
         void IAccelerometer.Stop()
         {
-            PlatformStop();
+            if (!IsMonitoring)
+                return;
+
+            try
+            {
+                PlatformStop();
+            }
+            finally
+            {
+                _isMonitoring = false; // Ensure we reset the monitoring state even if stopping fails
+            }
         }
     }
 }

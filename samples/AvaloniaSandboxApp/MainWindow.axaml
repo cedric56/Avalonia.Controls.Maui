@@ -20,7 +20,7 @@
 					ItemsSource="{Binding FilteredSamples}"
 					>
 					<ItemsControl.ItemTemplate>
-						 <DataTemplate>
+						 <DataTemplate x:DataType="local:SampleGroup">
                             <Border BorderThickness="0 0 0 1"
                                     BorderBrush="Gray">
                                 <StackPanel Orientation="Vertical">

@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Devices.Sensors;
+﻿using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices.Sensors;
 using System.Runtime.InteropServices.JavaScript;
 
 namespace Avalonia.Controls.Maui.Essentials
@@ -74,15 +75,16 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
         async void PlatformStart(SensorSpeed sensorSpeed)
         {
+            if (!IsSupported)
+                throw new FeatureNotSupportedException();
+
             // Ensure the JavaScript sensor module is fully loaded and initialized
             // ConfigureAwait(false) prevents deadlocks when called from UI contexts
             await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
 
             _isMonitoring = true;
-            // Convert SensorSpeed enum to platform-specific frequency (Hz) and start listening
-            // ToPlatform() maps sensor speed to appropriate Hz values for WebAssembly
-            StartListening((int)sensorSpeed.ToPlatform());
 
+            StartListening(GetFrequency(sensorSpeed));
         }
 
         /// <summary>
@@ -92,7 +94,24 @@ namespace Avalonia.Controls.Maui.Essentials
         void PlatformStop()
         {
             StopListening();
+
             _isMonitoring = false;
+        }
+
+        private int GetFrequency(SensorSpeed sensorSpeed)
+        {
+            switch (sensorSpeed)
+            {
+                case SensorSpeed.Default:
+                    return 30;
+                case SensorSpeed.UI:
+                    return 15;
+                case SensorSpeed.Game:
+                    return 60;
+                case SensorSpeed.Fastest:
+                    return 100;
+            }
+            return 30;
         }
     }
 }

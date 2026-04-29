@@ -1,4 +1,6 @@
-﻿using Microsoft.Maui.Devices.Sensors;
+﻿using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices.Sensors;
+using System.Globalization;
 
 namespace Avalonia.Controls.Maui.Essentials
 {
@@ -51,14 +53,11 @@ namespace Avalonia.Controls.Maui.Essentials
         /// </summary>
         /// <param name="sensorSpeed">Desired sensor update frequency (used to determine polling interval)</param>
         void PlatformStart(SensorSpeed sensorSpeed)
-        {
-            if (_devicePath == null)
-                throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
-
+        {            
             _isMonitoring = true;
 
             // Convert SensorSpeed to polling interval in milliseconds
-            var interval = sensorSpeed.ToPlatform();
+            var interval = GetInterval(sensorSpeed);
 
             // Create cancellation token source for stopping the polling loop
             _cts = new CancellationTokenSource();
@@ -73,26 +72,23 @@ namespace Avalonia.Controls.Maui.Essentials
         /// </summary>
         async void PlatformStop()
         {
-            if (_devicePath is not null)
-            {
-                // Signal the polling loop to stop
-                _cts?.Cancel();
+            // Signal the polling loop to stop
+            _cts?.Cancel();
 
-                if (_pollingTask != null)
+            if (_pollingTask != null)
+            {
+                try
                 {
-                    try
-                    {
-                        // Wait for the polling task to complete gracefully
-                        await _pollingTask;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Expected exception when cancellation is requested - swallow it
-                    }
-                    finally
-                    {
-                        _isMonitoring = false;
-                    }
+                    // Wait for the polling task to complete gracefully
+                    await _pollingTask;
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected exception when cancellation is requested - swallow it
+                }
+                finally
+                {
+                    _isMonitoring = false;
                 }
             }
         }
@@ -109,7 +105,7 @@ namespace Avalonia.Controls.Maui.Essentials
                 throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
 
             // Determine polling interval from sensor speed
-            var interval = sensorSpeed.ToPlatform();
+            var interval = GetInterval(sensorSpeed);
 
             // Construct paths to raw data files for each axis
             string xRaw = Path.Combine(_devicePath, "in_accel_x_raw");
@@ -123,9 +119,9 @@ namespace Avalonia.Controls.Maui.Essentials
 
             // Read scale factors (conversion from raw integer to g-force or m/s²)
             // Default to 1.0 if scale file doesn't exist (assume raw values are already in physical units)
-            double xScale = File.Exists(xScaleFile) ? double.Parse(File.ReadAllText(xScaleFile)) : 1.0;
-            double yScale = File.Exists(yScaleFile) ? double.Parse(File.ReadAllText(yScaleFile)) : 1.0;
-            double zScale = File.Exists(zScaleFile) ? double.Parse(File.ReadAllText(zScaleFile)) : 1.0;
+            double xScale = File.Exists(xScaleFile) ? double.Parse(File.ReadAllText(xScaleFile), CultureInfo.InvariantCulture) : 1.0;
+            double yScale = File.Exists(yScaleFile) ? double.Parse(File.ReadAllText(yScaleFile), CultureInfo.InvariantCulture) : 1.0;
+            double zScale = File.Exists(zScaleFile) ? double.Parse(File.ReadAllText(zScaleFile), CultureInfo.InvariantCulture) : 1.0;
 
             // Continue polling until cancellation is requested
             while (!token.IsCancellationRequested)
@@ -133,9 +129,9 @@ namespace Avalonia.Controls.Maui.Essentials
                 try
                 {
                     // Read raw integer values from sysfs and convert to physical units
-                    double x = int.Parse(File.ReadAllText(xRaw)) * xScale;
-                    double y = int.Parse(File.ReadAllText(yRaw)) * yScale;
-                    double z = int.Parse(File.ReadAllText(zRaw)) * zScale;
+                    double x = int.Parse(File.ReadAllText(xRaw), CultureInfo.InvariantCulture) * xScale;
+                    double y = int.Parse(File.ReadAllText(yRaw), CultureInfo.InvariantCulture) * yScale;
+                    double z = int.Parse(File.ReadAllText(zRaw), CultureInfo.InvariantCulture) * zScale;
 
                     // Create MAUI accelerometer data and raise the Changed event
                     var data = new AccelerometerData(x, y, z);
@@ -152,5 +148,14 @@ namespace Avalonia.Controls.Maui.Essentials
                     break;
             }
         }
+
+        private int GetInterval(SensorSpeed speed) => speed switch
+        {
+            SensorSpeed.Default => 200,  // ~5 Hz
+            SensorSpeed.UI => 66,   // ~15 Hz
+            SensorSpeed.Game => 33,   // ~30 Hz
+            SensorSpeed.Fastest => 1,    // As fast as possible
+            _ => 100
+        };
     }
 }
