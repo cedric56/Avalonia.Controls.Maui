@@ -5,27 +5,17 @@ namespace Avalonia.Controls.Maui.Essentials
 {
     partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
     {
-        private bool _isMonitoring;
-
-        /// <summary>
-        /// Indicates whether the accelerometer is currently monitoring sensor readings.
-        /// Implementation of IAccelerometer.IsMonitoring property.
-        /// </summary>
-        bool IAccelerometer.IsMonitoring => _isMonitoring;
-
-        bool IAccelerometer.IsSupported => IsSupported;
-
         /// <summary>
         /// Indicates whether the accelerometer is currently monitoring sensor readings.
         /// Public version that hides the base implementation (using 'new' keyword).
         /// </summary>
-        public new bool IsMonitoring => _isMonitoring;
+        public new bool IsMonitoring { get; private set; }
 
-        /// <summary>
-        /// Indicates whether the accelerometer is currently supportd sensor.
-        /// Public version that hides the base implementation (using 'new' keyword).
-        /// Returning value define by platform-specific implementation of PlatformIsSupported property.
-        /// </summary>
+        ///// <summary>
+        ///// Indicates whether the accelerometer is currently supportd sensor.
+        ///// Public version that hides the base implementation (using 'new' keyword).
+        ///// Returning value define by platform-specific implementation of PlatformIsSupported property.
+        ///// </summary>
         public new bool IsSupported => PlatformIsSupported();
 
         /// <summary>
@@ -49,7 +39,7 @@ namespace Avalonia.Controls.Maui.Essentials
             if (IsMonitoring)
                 throw new InvalidOperationException("Accelerometer has already been started.");
 
-            _isMonitoring = true;
+            IsMonitoring = true;
 
             try
             {
@@ -57,7 +47,7 @@ namespace Avalonia.Controls.Maui.Essentials
             }
             catch
             {
-                _isMonitoring = false;
+                IsMonitoring = false;
                 throw;
             }
         }
@@ -72,10 +62,13 @@ namespace Avalonia.Controls.Maui.Essentials
         /// </remarks>
         void IAccelerometer.Stop()
         {
+            if (!IsSupported)
+                throw new FeatureNotSupportedException();
+
             if (!IsMonitoring)
                 return;
 
-            _isMonitoring = false;
+            IsMonitoring = false;
 
             try
             {
@@ -83,7 +76,7 @@ namespace Avalonia.Controls.Maui.Essentials
             }
             catch
             {
-                _isMonitoring = true;
+                IsMonitoring = true;
                 throw;
             }
         }
