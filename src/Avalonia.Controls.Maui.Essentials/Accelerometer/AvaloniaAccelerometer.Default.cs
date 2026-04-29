@@ -109,7 +109,7 @@ partial class AvaloniaAccelerometer
     {
         if (_devicePath == null) return;
 
-        var intervalMs = GetInterval(sensorSpeed);
+        var interval = GetInterval(sensorSpeed);
 
         string xRaw = Path.Combine(_devicePath, "in_accel_x_raw");
         string yRaw = Path.Combine(_devicePath, "in_accel_y_raw");
@@ -143,11 +143,13 @@ partial class AvaloniaAccelerometer
                 Console.Error.WriteLine($"IIO read error: {ex.Message}");
             }
 
-            await Task.Delay(intervalMs, token).ConfigureAwait(false);
+            // Returns true if cancellation was signaled, false if timeout occurred
+            if (token.WaitHandle.WaitOne(interval))
+                break;     // Clean exit, no exception handling needed
         }
     }        
 
-    private int GetInterval(SensorSpeed speed) => speed switch
+    private static int GetInterval(SensorSpeed speed) => speed switch
     {
         SensorSpeed.Default => 200,   // 5 Hz - Battery efficient, good for orientation
         SensorSpeed.UI => 50,         // 20 Hz - Smooth UI updates (66ms was fine too)
