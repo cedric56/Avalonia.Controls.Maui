@@ -8,7 +8,7 @@ namespace Avalonia.Controls.Maui.Essentials
     /// This partial class provides the JavaScript interop layer that connects .NET accelerometer
     /// APIs to browser-based sensor APIs (DeviceMotionEvent).
     /// </summary>
-    partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
+    partial class AvaloniaAccelerometer
     {
         bool PlatformIsSupported() => true;
 
@@ -19,11 +19,7 @@ namespace Avalonia.Controls.Maui.Essentials
         ///// </summary>
         ///// <param name="frequency">Desired update frequency in Hz (updates per second).
         ///// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="frequency"></param>
-        /// <param name="onReadingChanged"></param>
+        ///// <param name="onReadingChanged">Callback for handling accelerometer readings</param>        
         [JSImport("accelerometerInterop.startListening", JSSensors.ModuleName)]
         public static partial void StartListening(int frequency, [JSMarshalAs<JSType.Function<JSType.Number, JSType.Number, JSType.Number>>] Action<double, double, double> onReadingChanged);
 
