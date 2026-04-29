@@ -98,15 +98,15 @@ namespace Avalonia.Controls.Maui.Essentials
             switch (sensorSpeed)
             {
                 case SensorSpeed.Default:
-                    return 30;
+                    return 10;
                 case SensorSpeed.UI:
                     return 15;
                 case SensorSpeed.Game:
-                    return 60;
+                    return 30;
                 case SensorSpeed.Fastest:
-                    return 100;
+                    return 60;
             }
-            return 30;
+            return 10;
         }
     }
 }
