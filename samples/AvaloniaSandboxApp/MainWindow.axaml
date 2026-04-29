@@ -5,53 +5,20 @@
         xmlns:controls="using:AvaloniaSandboxApp.Controls"
         xmlns:local="using:AvaloniaSandboxApp"
         mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
-		x:DataType="local:MainWindow"
         x:Class="AvaloniaSandboxApp.MainWindow">
-    
-    <DrawerPage x:Name="drawer">
-		            <DrawerPage.Drawer>
-        <Grid RowDefinitions="Auto,*">
-			<TextBox PlaceholderText="Search..."
-						   TextChanged="OnSearchBarTextChanged"
-						   Margin="6"/>
-
-				<ItemsControl Grid.Row="1"
-					x:Name="MenuCollectionView"
-					ItemsSource="{Binding FilteredSamples}"
-					>
-					<ItemsControl.ItemTemplate>
-						 <DataTemplate x:DataType="local:SampleGroup">
-                            <Border BorderThickness="0 0 0 1"
-                                    BorderBrush="Gray">
-                                <StackPanel Orientation="Vertical">
-                                    <TextBlock Text="{CompiledBinding Name}" 
-											   FontSize="14"
-											    FontWeight="Bold"
-								   Padding="16,12,16,4"/>
-                                    <ListBox ItemsSource="{CompiledBinding Items}"
-											 SelectionChanged="MenuCollectionView_SelectionChanged">
-										<ListBox.ItemTemplate>
-            <DataTemplate x:DataType="local:SampleItem">
-							<Grid >
-								<StackPanel Spacing="2">
-									<TextBlock Text="{Binding Title}"
-										   FontSize="16"										   
-										   VerticalAlignment="Center"/>
-									<TextBlock Text="{Binding Detail}"
-										   FontSize="13"
-										   Opacity="0.7"
-										   VerticalAlignment="Center"/>
-								</StackPanel>
-							</Grid>
-						</DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-					</ItemsControl.ItemTemplate>
-				</ItemsControl>
-			</Grid>
-    </DrawerPage.Drawer>
-    </DrawerPage>
+        <TabControl>
+                <TabItem Background="Green" Header="Home">
+                        <StackPanel Margin="20">
+                        <TextBlock Text="Welcome to Avalonia.Controls.Maui!" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="This is a sample application demonstrating the use of Avalonia.Controls.Maui in a .NET MAUI project." FontSize="16" Margin="0,0,0,20"/>
+                        <Button Content="Click Me" Width="120" Height="40"/>
+                        </StackPanel>
+                </TabItem>
+                <TabItem Header="Settings">
+                        <StackPanel Margin="20">
+                        <TextBlock Text="Settings Page" FontSize="24" FontWeight="Bold" Margin="0,0,0,10"/>
+                        <TextBlock Text="Here you can configure your application settings." FontSize="16"/>
+                        </StackPanel>
+                </TabItem>                
+</TabControl>
 </Window>
