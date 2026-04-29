@@ -26,5 +26,5 @@ public static class MauiEssentialsBuilderExtensions
         Microsoft.Maui.Devices.Sensors.Accelerometer.SetDefault(new Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer());
 
         return builder;
-    }    
+    }
 }
