@@ -6,42 +6,45 @@ export const accelerometerInterop = {
     lastUpdateTime: 0,
     startListening: function (frequency) {
 
+    deviceMotionHandler: null,
+    startListening: function (frequency) {
+
         this.frequency = frequency;
         if ('DeviceMotionEvent' in window) {
 
-            function onDeviceMotion(event) {
-                const now = Date.now();
-                const interval = 1000 / this.frequency;
+            if (!this.deviceMotionHandler) {
+                this.deviceMotionHandler = (event) => {
+                    const now = Date.now();
+                    const interval = 1000 / this.frequency;
 
-                if (now - this.lastUpdateTime < interval) return;
-                this.lastUpdateTime = now;
+                    if (now - this.lastUpdateTime < interval) return;
+                    this.lastUpdateTime = now;
 
-                const accelerationIncludingGravity = event.accelerationIncludingGravity;
-
-                exports.Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer.OnReadingChanged(
-                    accelerationIncludingGravity?.x || 0,
-                    accelerationIncludingGravity?.y || 0,
-                    accelerationIncludingGravity?.z || 0
-                );
+                    exports.Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer.OnReadingChanged(
+                        event.accelerationIncludingGravity.x || 0,
+                        event.accelerationIncludingGravity.y || 0,
+                        event.accelerationIncludingGravity.z || 0
+                    );
+                };
             }
 
             if (typeof DeviceMotionEvent.requestPermission === 'function') {
                 DeviceMotionEvent.requestPermission()
                     .then(permissionState => {
                         if (permissionState === 'granted') {
-                            window.ondevicemotion = onDeviceMotion;
+                            window.addEventListener('devicemotion', this.deviceMotionHandler);
                         }
                     })
                     .catch(console.error);
             }
             else {
-                window.ondevicemotion = onDeviceMotion;
+                window.addEventListener('devicemotion', this.deviceMotionHandler);
             }
         }
     },
     stopListening: function () {
-        if ('DeviceMotionEvent' in window)
-            window.ondevicemotion = null;
+        if ('DeviceMotionEvent' in window && this.deviceMotionHandler)
+            window.removeEventListener('devicemotion', this.deviceMotionHandler);
         this.lastUpdateTime = 0;
     }
 };
