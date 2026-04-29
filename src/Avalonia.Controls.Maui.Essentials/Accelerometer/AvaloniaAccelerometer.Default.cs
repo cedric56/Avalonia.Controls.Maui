@@ -8,14 +8,11 @@ namespace Avalonia.Controls.Maui.Essentials
     /// Uses polling since Linux doesn't provide event-based sensor APIs by default.
     /// Measures acceleration forces in m/s² after applying scale factors.
     /// </summary>
-    class LinuxAccelerometer : AccelerometerImplementation, IAccelerometer
+    partial class AvaloniaAccelerometer
     {
         private CancellationTokenSource? _cts;      // Token source for cancelling the polling loop
         private Task? _pollingTask;                 // Background task for polling sensor data
         private readonly string? _devicePath;       // Path to the IIO device directory (e.g., /sys/bus/iio/devices/iio:device0)
-
-        
-        private bool _isMonitoring;
 
         /// <summary>
         /// Indicates whether an accelerometer was found in the Linux IIO subsystem.
@@ -23,16 +20,12 @@ namespace Avalonia.Controls.Maui.Essentials
         /// </summary>
         bool IAccelerometer.IsSupported => _devicePath != null;
 
-        bool IAccelerometer.IsMonitoring => _isMonitoring;
-
-        public new bool IsMonitoring => _isMonitoring;
-
         /// <summary>
         /// Constructor - attempts to locate an accelerometer device in the Linux IIO subsystem.
         /// Scans /sys/bus/iio/devices/ for a device that has accelerometer raw data files.
         /// Only runs on Linux operating systems.
         /// </summary>
-        public LinuxAccelerometer()
+        public AvaloniaAccelerometer()
         {
             if (OperatingSystem.IsLinux())
             {
@@ -57,7 +50,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// Launches a background task that continuously reads sensor data from sysfs files.
         /// </summary>
         /// <param name="sensorSpeed">Desired sensor update frequency (used to determine polling interval)</param>
-        void IAccelerometer.Start(SensorSpeed sensorSpeed)
+        void PlatformStart(SensorSpeed sensorSpeed)
         {
             if (_devicePath == null)
                 throw new NotSupportedException("No accelerometer found in /sys/bus/iio/devices");
@@ -78,7 +71,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// Stops polling the Linux accelerometer.
         /// Cancels the background task and waits for it to complete.
         /// </summary>
-        async void IAccelerometer.Stop()
+        async void PlatformStop()
         {
             if (_devicePath is not null)
             {

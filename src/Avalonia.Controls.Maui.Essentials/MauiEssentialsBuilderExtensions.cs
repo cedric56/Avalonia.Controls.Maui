@@ -1,4 +1,3 @@
-using Avalonia.Controls.Maui.Essentials;
 using Microsoft.Maui.Hosting;
 using Microsoft.Maui.Storage;
 
@@ -24,17 +23,7 @@ public static class MauiEssentialsBuilderExtensions
         Microsoft.Maui.Storage.Preferences.SetDefault(new Avalonia.Controls.Maui.Essentials.AvaloniaPreferences());
         FileSystem.SetCurrent(new Avalonia.Controls.Maui.Essentials.AvaloniaFileSystem());
         Microsoft.Maui.Authentication.WebAuthenticator.SetDefault(new Avalonia.Controls.Maui.Essentials.AvaloniaWebAuthenticator(platformProvider));
-
-        Microsoft.Maui.Devices.Sensors.Accelerometer.SetDefault(
-#if !BROWSER
-        new LinuxAccelerometer()
-#elif BROWSER
-        new AvaloniaAccelerometer()
-#else
-        new AccelerometerImplementation()
-#endif
-
-           );
+        Microsoft.Maui.Devices.Sensors.Accelerometer.SetDefault(new Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer());
 
         return builder;
     }    

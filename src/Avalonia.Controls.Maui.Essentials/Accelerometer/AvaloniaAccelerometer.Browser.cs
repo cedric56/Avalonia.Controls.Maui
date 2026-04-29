@@ -10,12 +10,7 @@ namespace Avalonia.Controls.Maui.Essentials
     /// </summary>
     partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
     {
-        private bool _isMonitoring;
         bool IAccelerometer.IsSupported => true;
-
-        bool IAccelerometer.IsMonitoring => _isMonitoring;
-
-        public new bool IsMonitoring => _isMonitoring;
 
         /// <summary>
         /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
@@ -65,13 +60,6 @@ namespace Avalonia.Controls.Maui.Essentials
             }
         }
 
-        ///// <summary>
-        ///// Indicates whether the accelerometer is supported in the current browser environment.
-        ///// For WebAssembly, this always returns true as support detection is handled
-        ///// by the JavaScript interop layer checking for DeviceMotionEvent availability.
-        ///// </summary>
-        //public override bool IsSupported => true;
-
         /// <summary>
         /// Platform-specific implementation to start the accelerometer.
         /// This method ensures the JavaScript module is loaded before attempting to start
@@ -84,7 +72,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - SensorSpeed.UI → ~15 Hz (good for UI updates)
         /// - SensorSpeed.Default → ~10 Hz (balanced default)
         /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
-        async void IAccelerometer.Start(SensorSpeed sensorSpeed)
+        async void PlatformStart(SensorSpeed sensorSpeed)
         {
             // Ensure the JavaScript sensor module is fully loaded and initialized
             // ConfigureAwait(false) prevents deadlocks when called from UI contexts
@@ -101,7 +89,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// Platform-specific implementation to stop the accelerometer.
         /// Simply calls the JavaScript function to remove event listeners and stop updates.
         /// </summary>
-        void IAccelerometer.Stop()
+        void PlatformStop()
         {
             StopListening();
             _isMonitoring = false;
