@@ -86,8 +86,6 @@ namespace Avalonia.Controls.Maui.Essentials
         void PlatformStop()
         {
             StopListening();
-
-            _isMonitoring = false;
         }
 
         private int GetFrequency(SensorSpeed sensorSpeed)

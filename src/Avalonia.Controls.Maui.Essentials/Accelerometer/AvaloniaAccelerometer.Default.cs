@@ -80,10 +80,6 @@ namespace Avalonia.Controls.Maui.Essentials
                 {
                     // Expected exception when cancellation is requested - swallow it
                 }
-                finally
-                {
-                    _isMonitoring = false;
-                }
             }
         }
 
