@@ -1,11 +1,11 @@
-﻿import { dotnetRuntime } from './main.js';
-const exports = await dotnetRuntime.getAssemblyExports("Avalonia.Controls.Maui.Essentials");
+﻿// import { dotnetRuntime } from './main.js';
+// const exports = await dotnetRuntime.getAssemblyExports("Avalonia.Controls.Maui.Essentials");
 
 export const accelerometerInterop = {
     frequency: 10,
     lastUpdateTime: 0,
     deviceMotionHandler: null,
-    startListening: function (frequency) {
+    startListening: function (frequency, onReadingChanged) {
 
         this.frequency = frequency;
         if ('DeviceMotionEvent' in window) {
@@ -20,7 +20,7 @@ export const accelerometerInterop = {
 
                     const accelerationIncludingGravity = event.accelerationIncludingGravity;
 
-                    exports.Avalonia.Controls.Maui.Essentials.AvaloniaAccelerometer.OnReadingChanged(
+                    onReadingChanged(
                         accelerationIncludingGravity?.x || 0,
                         accelerationIncludingGravity?.y || 0,
                         accelerationIncludingGravity?.z || 0

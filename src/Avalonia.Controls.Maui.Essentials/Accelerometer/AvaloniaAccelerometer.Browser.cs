@@ -1,5 +1,4 @@
-﻿using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices.Sensors;
+﻿using Microsoft.Maui.Devices.Sensors;
 using System.Runtime.InteropServices.JavaScript;
 
 namespace Avalonia.Controls.Maui.Essentials
@@ -13,15 +12,20 @@ namespace Avalonia.Controls.Maui.Essentials
     {
         bool PlatformIsSupported() => true;
 
+        ///// <summary>
+        ///// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
+        ///// This method is imported from the JavaScript module and calls the Web API to begin
+        ///// receiving accelerometer updates from the device's motion sensors.
+        ///// </summary>
+        ///// <param name="frequency">Desired update frequency in Hz (updates per second).
+        ///// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
         /// <summary>
-        /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
-        /// This method is imported from the JavaScript module and calls the Web API to begin
-        /// receiving accelerometer updates from the device's motion sensors.
+        /// 
         /// </summary>
-        /// <param name="frequency">Desired update frequency in Hz (updates per second).
-        /// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
+        /// <param name="frequency"></param>
+        /// <param name="onReadingChanged"></param>
         [JSImport("accelerometerInterop.startListening", JSSensors.ModuleName)]
-        public static partial void StartListening(int frequency);
+        public static partial void StartListening(int frequency, [JSMarshalAs<JSType.Function<JSType.Number, JSType.Number, JSType.Number>>] Action<double, double, double> onReadingChanged);
 
         /// <summary>
         /// Stops listening to accelerometer data from the browser.
@@ -47,18 +51,11 @@ namespace Avalonia.Controls.Maui.Essentials
         /// the values represent the orientation of the device relative to Earth's gravity.
         /// For example, a device lying flat on a table would have Z ≈ 9.81, X ≈ 0, Y ≈ 0.
         /// </remarks>
-        [JSExport]
-        public static void OnReadingChanged(double x, double y, double z)
+        public void OnReadingChanged(double x, double y, double z)
         {
-            // Check if the default accelerometer instance is our WebAssembly implementation
-            // and that it's currently monitoring before raising events
-            if (Accelerometer.Default is AvaloniaAccelerometer implementation &&
-                implementation.IsMonitoring)
-            {
-                // Create event args with the acceleration data (expressed in m/s²)
-                // The data includes gravity, which is expected for the accelerometer API
-                implementation.OnChanged(new AccelerometerChangedEventArgs(new AccelerometerData(x, y, z)));
-            }
+            // Create event args with the acceleration data (expressed in m/s²)
+            // The data includes gravity, which is expected for the accelerometer API
+            OnChanged(new AccelerometerChangedEventArgs(new AccelerometerData(x, y, z)));
         }
 
         /// <summary>
@@ -79,7 +76,7 @@ namespace Avalonia.Controls.Maui.Essentials
             // ConfigureAwait(false) prevents deadlocks when called from UI contexts
             await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
 
-            StartListening(GetFrequency(sensorSpeed));
+            StartListening(GetFrequency(sensorSpeed), OnReadingChanged);
         }
 
         /// <summary>
