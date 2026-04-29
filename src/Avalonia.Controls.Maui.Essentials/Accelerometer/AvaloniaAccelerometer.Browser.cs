@@ -11,7 +11,7 @@ namespace Avalonia.Controls.Maui.Essentials
     /// </summary>
     partial class AvaloniaAccelerometer : AccelerometerImplementation, IAccelerometer
     {
-        bool IAccelerometer.IsSupported => true;
+        bool PlatformIsSupported() => true;
 
         /// <summary>
         /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.
@@ -75,14 +75,9 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - SensorSpeed.Normal → ~5 Hz (power efficient)</param>
         async void PlatformStart(SensorSpeed sensorSpeed)
         {
-            if (!IsSupported)
-                throw new FeatureNotSupportedException();
-
             // Ensure the JavaScript sensor module is fully loaded and initialized
             // ConfigureAwait(false) prevents deadlocks when called from UI contexts
             await JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
-
-            _isMonitoring = true;
 
             StartListening(GetFrequency(sensorSpeed));
         }

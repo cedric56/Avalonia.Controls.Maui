@@ -16,11 +16,7 @@ namespace Avalonia.Controls.Maui.Essentials
         private Task? _pollingTask;                 // Background task for polling sensor data
         private readonly string? _devicePath;       // Path to the IIO device directory (e.g., /sys/bus/iio/devices/iio:device0)
 
-        /// <summary>
-        /// Indicates whether an accelerometer was found in the Linux IIO subsystem.
-        /// Returns true if a device with accelerometer files was discovered.
-        /// </summary>
-        bool IAccelerometer.IsSupported => _devicePath != null;
+        bool PlatformIsSupported() => _devicePath != null;
 
         /// <summary>
         /// Constructor - attempts to locate an accelerometer device in the Linux IIO subsystem.
@@ -53,9 +49,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// </summary>
         /// <param name="sensorSpeed">Desired sensor update frequency (used to determine polling interval)</param>
         void PlatformStart(SensorSpeed sensorSpeed)
-        {            
-            _isMonitoring = true;
-
+        {   
             // Convert SensorSpeed to polling interval in milliseconds
             var interval = GetInterval(sensorSpeed);
 
