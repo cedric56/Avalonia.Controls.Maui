@@ -2,7 +2,7 @@
     frequency: 10,
     lastUpdateTime: 0,
     deviceMotionHandler: null,
-    isSupported() {
+    isSupported: function () {
         return typeof DeviceMotionEvent !== 'undefined';
     },
     startListening: function (frequency, onReadingChanged) {

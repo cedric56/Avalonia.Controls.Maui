@@ -1,6 +1,5 @@
 ﻿using Microsoft.Maui.Devices.Sensors;
 using System.Globalization;
-using System.Reflection.PortableExecutable;
 
 namespace Avalonia.Controls.Maui.Essentials;
 
