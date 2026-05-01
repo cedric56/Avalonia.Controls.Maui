@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Devices.Sensors;
 using System.Globalization;
+using System.Reflection.PortableExecutable;
 
 namespace Avalonia.Controls.Maui.Essentials;
 
@@ -122,30 +123,30 @@ partial class AvaloniaAccelerometer
 
         // Read scale factors (conversion from raw integer to g-force or m/s²)
         // Default to 1.0 if scale file doesn't exist (assume raw values are already in physical units)
-        double xScale = File.Exists(xScaleFile) ? double.Parse(File.ReadAllText(xScaleFile), CultureInfo.InvariantCulture) : 1.0;
-        double yScale = File.Exists(yScaleFile) ? double.Parse(File.ReadAllText(yScaleFile), CultureInfo.InvariantCulture) : 1.0;
-        double zScale = File.Exists(zScaleFile) ? double.Parse(File.ReadAllText(zScaleFile), CultureInfo.InvariantCulture) : 1.0;
-
+        double xScale = File.Exists(xScaleFile) && double.TryParse(File.ReadAllText(xScaleFile), CultureInfo.InvariantCulture, out var xScaleVal) ? xScaleVal : 1.0;
+        double yScale = File.Exists(yScaleFile) && double.TryParse(File.ReadAllText(yScaleFile), CultureInfo.InvariantCulture, out var yScaleVal) ? yScaleVal : 1.0;
+        double zScale = File.Exists(zScaleFile) && double.TryParse(File.ReadAllText(zScaleFile), CultureInfo.InvariantCulture, out var zScaleVal) ? zScaleVal : 1.0;
 
         while (!token.IsCancellationRequested)
         {
+            // Read raw integer values from sysfs and convert to physical units
+            //AccelerometerData in MAUI expects values in g - force(where 1g ≈ 9.81 m / s²).
+            //Most IIO accelerometers output m / s² after applying the scale.
+            //→ You must divide by 9.80665.
+            double x = int.TryParse(File.ReadAllText(xRaw), out var xVal) ? (xVal * xScale) / 9.80665 : 0;
+            double y = int.TryParse(File.ReadAllText(yRaw), out var yVal) ? (yVal * yScale) / 9.80665 : 0;
+            double z = int.TryParse(File.ReadAllText(zRaw), out var zVal) ? (zVal * zScale) / 9.80665 : 0;
+
+            OnChanged(new AccelerometerChangedEventArgs(new AccelerometerData(x, y, z)));
+
             try
             {
-                // Read raw integer values from sysfs and convert to physical units
-                double x = int.Parse(File.ReadAllText(xRaw), CultureInfo.InvariantCulture) * xScale;
-                double y = int.Parse(File.ReadAllText(yRaw), CultureInfo.InvariantCulture) * yScale;
-                double z = int.Parse(File.ReadAllText(zRaw), CultureInfo.InvariantCulture) * zScale;
-
-                OnChanged(new AccelerometerChangedEventArgs(new AccelerometerData(x, y, z)));
+                await Task.Delay(interval, token);
             }
-            catch (Exception ex)
+            catch (OperationCanceledException)
             {
-                Console.Error.WriteLine($"IIO read error: {ex.Message}");
+                break;  // Exit loop if cancellation is requested during delay
             }
-
-            // Returns true if cancellation was signaled, false if timeout occurred
-            if (token.WaitHandle.WaitOne(interval))
-                break;     // Clean exit, no exception handling needed
         }
     }        
 

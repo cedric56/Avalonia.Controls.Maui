@@ -15,7 +15,10 @@ partial class AvaloniaAccelerometer
         _ = JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
     }
 
-    bool PlatformIsSupported() => true;
+    bool PlatformIsSupported() => IsAccelerometerSupported();
+
+    [JSImport("accelerometerInterop.isSupported", JSSensors.ModuleName)]
+    public static partial bool IsAccelerometerSupported();
 
     /// <summary>
     /// Starts listening to accelerometer data from the browser's DeviceMotionEvent API.

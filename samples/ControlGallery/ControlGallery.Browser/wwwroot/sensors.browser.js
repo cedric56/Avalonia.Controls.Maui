@@ -1,10 +1,10 @@
-﻿// import { dotnetRuntime } from './main.js';
-// const exports = await dotnetRuntime.getAssemblyExports("Avalonia.Controls.Maui.Essentials");
-
-export const accelerometerInterop = {
+﻿export const accelerometerInterop = {
     frequency: 10,
     lastUpdateTime: 0,
     deviceMotionHandler: null,
+    isSupported() {
+        return typeof DeviceMotionEvent !== 'undefined';
+    },
     startListening: function (frequency, onReadingChanged) {
 
         this.frequency = frequency;
