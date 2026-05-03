@@ -35,6 +35,7 @@ public partial class SensorsPage : ContentPage
     {
         if (Accelerometer.IsSupported)
         {
+            Accelerometer.ShakeDetected -= Accelerometer_ShakeDetected;
             Accelerometer.ReadingChanged -= Accelerometer_ReadingChanged;
             Accelerometer.Stop();
         }
