@@ -21,6 +21,9 @@
                     <Label x:Name="AccelerometerLabel"
                        Text="File: --"
                        FontAttributes="Italic"/>
+                    <Label x:Name="ShakeLabel"
+                        Text="File: --"
+                        FontAttributes="Italic"/>
                 </VerticalStackLayout>
             </Border>
 

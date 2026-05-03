@@ -14,8 +14,16 @@ public partial class SensorsPage : ContentPage
         if (Accelerometer.IsSupported)
         {
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+            Accelerometer.ShakeDetected += Accelerometer_ShakeDetected;
             Accelerometer.Start(SensorSpeed.Default);
         }
+    }
+
+    private async void Accelerometer_ShakeDetected(object? sender, EventArgs e)
+    {
+        ShakeLabel.Text = "Shake detected!";
+        await Task.Delay(1000); // Clear the shake message after 1 second
+        ShakeLabel.Text = "No shake detected.";
     }
 
     private void Accelerometer_ReadingChanged(object? sender, AccelerometerChangedEventArgs e)
