@@ -117,7 +117,7 @@ partial class AvaloniaAccelerometer : IAccelerometer
         if (delta < ForceThreshold)
             return;
 
-        // 3. Compute direction change strength (Uno idea but simplified)
+        // 3. Compute direction change strength
         var directionChange =
             Math.Abs(x - _lastX) +
             Math.Abs(y - _lastY) +
