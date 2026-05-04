@@ -10,14 +10,17 @@ namespace Avalonia.Controls.Maui.Essentials;
 /// </summary>
 partial class AvaloniaAccelerometer
 {
+    const string ModuleName = "sensors";
+    const string ModulePath = "/sensors.browser.js";
+
     public AvaloniaAccelerometer()
     {
-        _ = JSSensors.EnsureModuleLoadedAsync().ConfigureAwait(false);
+        _ = JSHost.ImportAsync(ModuleName, ModulePath);
     }
 
     bool PlatformIsSupported() => IsAccelerometerSupported();
 
-    [JSImport("accelerometerInterop.isSupported", JSSensors.ModuleName)]
+    [JSImport("accelerometerInterop.isSupported", ModuleName)]
     public static partial bool IsAccelerometerSupported();
 
     /// <summary>
@@ -28,7 +31,7 @@ partial class AvaloniaAccelerometer
     /// <param name="frequency">Desired update frequency in Hz (updates per second).
     /// Common values: 10-60 Hz depending on SensorSpeed setting.</param>
     /// <param name="onReadingChanged">Callback for handling accelerometer readings</param>        
-    [JSImport("accelerometerInterop.startListening", JSSensors.ModuleName)]
+    [JSImport("accelerometerInterop.startListening", ModuleName)]
     public static partial void StartListening(int frequency, [JSMarshalAs<JSType.Function<JSType.Number, JSType.Number, JSType.Number>>] Action<double, double, double> onReadingChanged);
 
     /// <summary>
@@ -36,7 +39,7 @@ partial class AvaloniaAccelerometer
     /// This method is imported from the JavaScript module and disconnects the event handlers
     /// that were receiving device motion updates. It also resets the throttling state.
     /// </summary>
-    [JSImport("accelerometerInterop.stopListening", JSSensors.ModuleName)]
+    [JSImport("accelerometerInterop.stopListening", ModuleName)]
     public static partial void StopListening();
 
     /// <summary>
