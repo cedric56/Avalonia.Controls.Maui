@@ -80,9 +80,7 @@ public partial class TabbedPage : ContentPage
     {
         var tabbedPage = new ControlsTabbedPage
         {
-            Title = "Dynamic Tab Icons",
-            BarBackgroundColor = Colors.DarkSlateBlue,
-            BarTextColor = Colors.White
+            Title = "Dynamic Tab Icons"
         };
 
         var homePage = new ContentPage
@@ -424,9 +422,7 @@ public partial class TabbedPage : ContentPage
 
         var renameButton = new Button
         {
-            Text = "Rename Tab",
-            BackgroundColor = Colors.SteelBlue,
-            TextColor = Colors.White
+            Text = "Rename Tab"
         };
         renameButton.Clicked += (_, _) =>
         {
@@ -436,9 +432,7 @@ public partial class TabbedPage : ContentPage
 
         var toggleIconButton = new Button
         {
-            Text = "Toggle Icon",
-            BackgroundColor = Colors.SeaGreen,
-            TextColor = Colors.White
+            Text = "Toggle Icon"
         };
         toggleIconButton.Clicked += (_, _) =>
         {
@@ -449,9 +443,7 @@ public partial class TabbedPage : ContentPage
 
         var clearIconButton = new Button
         {
-            Text = "Clear Icon",
-            BackgroundColor = Colors.IndianRed,
-            TextColor = Colors.White
+            Text = "Clear Icon"
         };
         clearIconButton.Clicked += (_, _) =>
         {
@@ -470,8 +462,6 @@ public partial class TabbedPage : ContentPage
                 new Button
                 {
                     Text = "Back",
-                    BackgroundColor = Colors.Gray,
-                    TextColor = Colors.White,
                     Command = new Command(NavigateBackToDemo)
                 },
                 new Label
