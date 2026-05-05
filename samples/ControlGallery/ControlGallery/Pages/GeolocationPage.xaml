@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ControlGallery.Pages.GeolocationPage"
+             Title="Geolocation">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Get Location -->
+            <Border Stroke="Gray" Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Get Location"
+                           FontAttributes="Bold"/>
+
+                    <Button Text="Get Current Location"
+                            Clicked="OnGetLocationClicked"/>
+
+                    <Button Text="Get Last Known Location"
+                            Clicked="OnGetLastKnownClicked"/>
+
+                    <Label x:Name="LatitudeLabel"
+                           Text="Latitude: --"
+                           FontAttributes="Italic"/>
+
+                    <Label x:Name="LongitudeLabel"
+                           Text="Longitude: --"
+                           FontAttributes="Italic"/>
+
+                    <Label x:Name="AccuracyLabel"
+                           Text="Accuracy: --"
+                           FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Listening -->
+            <Border Stroke="Gray" Padding="10">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10"/>
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Listening"
+                           FontAttributes="Bold"/>
+
+                    <Button Text="Start Listening"
+                            Clicked="OnStartListeningClicked"/>
+
+                    <Button Text="Stop Listening"
+                            Clicked="OnStopListeningClicked"/>
+
+                    <Label x:Name="ListeningStatusLabel"
+                           Text="Status: Not listening"
+                           FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

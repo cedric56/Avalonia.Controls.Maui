@@ -13,6 +13,16 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Content Remove="wwwroot\geolocation.browser.js" />
+	  <Content Remove="wwwroot\share.browser.js" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\geolocation.browser.js" />
+	  <None Include="wwwroot\share.browser.js" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
 		<PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
 		<PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
