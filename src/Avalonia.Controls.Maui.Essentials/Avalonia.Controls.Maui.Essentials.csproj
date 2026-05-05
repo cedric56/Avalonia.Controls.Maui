@@ -3,7 +3,7 @@
     <TargetFrameworks>$(DotNetTfm);$(DotNetTfm)-browser</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS0618;CS8002;</NoWarn>
+    <NoWarn>$(NoWarn);CS0618;CS8002</NoWarn>
     <IsAotCompatible>true</IsAotCompatible>
     <AddMauiInternals>true</AddMauiInternals>
     <AssemblyOriginatorKeyFile>$(BuildDirectory)/avalonia.snk</AssemblyOriginatorKeyFile>
@@ -20,7 +20,14 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Controls.WebView" Version="$(AvaloniaWebViewVersion)" />
-    <PackageReference Include="Microsoft.Maui.Core" Version="$(MauiVersion)" /> 
+    <PackageReference Include="Microsoft.Maui.Core" Version="$(MauiVersion)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'browser'">
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
+    <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.22">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!-- Browser: exclude default (file-based) implementations -->
@@ -29,11 +36,7 @@
   </ItemGroup>
   <!-- Non-browser: exclude browser-specific implementations -->
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'browser'">
-    <Compile Remove="**/*.Browser.cs" />    
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.92.0" />
-    <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.22">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
+    <Compile Remove="**/*.Browser.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" ('$(IsPackable)' == 'true')">
