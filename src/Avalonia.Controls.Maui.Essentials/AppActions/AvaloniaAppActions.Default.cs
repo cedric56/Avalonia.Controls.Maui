@@ -83,7 +83,7 @@ namespace Avalonia.Controls.Maui.Essentials
                 //When using ConfigureEssentials
                 //We need the main window to set the WM_CLASS property,
                 //so we wait until it's initialized
-                var window= await WaitForMainWindowAsync(desktop);
+                var window = await WaitForMainWindowAsync();
 
                 // Set WM_CLASS so desktop environments associate actions with the window
                 X11Properties.SetWmClass(window, uid);
@@ -95,7 +95,13 @@ namespace Avalonia.Controls.Maui.Essentials
                 await RegisterDesktopFiles(actions, dotnet, dll);
             }
 
-            private static async Task<Window> WaitForMainWindowAsync(IClassicDesktopStyleApplicationLifetime desktop, int timeoutMs = 10000)
+            /// <summary>
+            /// Asynchronously waits for the application's main window to be initialized.
+            /// </summary>
+            /// <param name="timeoutMs">Maximum time to wait for the main window, in milliseconds. Default is 10000.</param>
+            /// <returns>A task that completes with the application's main Window once it becomes available.</returns>
+            /// <exception cref="TimeoutException">Thrown if the main window is not initialized before the specified timeout elapses.</exception>
+            private async Task<Window> WaitForMainWindowAsync(int timeoutMs = 10000)
             {
                 var elapsed = 0;
                 const int delay = 50;
