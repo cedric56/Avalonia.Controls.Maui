@@ -54,9 +54,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - Handling action invocation
         /// </summary>
         class Current(IClassicDesktopStyleApplicationLifetime desktop, IEnumerable<AppAction> actions, EventHandler<AppActionEventArgs>? onAppAction) : IAppActionsDBus
-        {
-            const string InterfaceName = "com.essentials.";
-
+        {            
             // D-Bus object path required by IDBusObject
             ObjectPath IDBusObject.ObjectPath => new(currentObjectPath);
 
@@ -64,9 +62,8 @@ namespace Avalonia.Controls.Maui.Essentials
             string uid = Guid.NewGuid().ToString("N");
 
             // Unique identifiers for D-Bus service and object
-            string identifier => "AppActions" + uid;
-            string currentObjectPath => "/com/essentials/" + identifier;
-            string currentInterface => InterfaceName + identifier;
+            string currentObjectPath => "/com/essentials/AppActions" + uid;
+            string currentInterface => "com.essentials.AppActions" + uid;
             string currentServiceBus => currentInterface + ".service";
 
             /// <summary>
