@@ -73,12 +73,12 @@ namespace Avalonia.Controls.Maui.Essentials
             /// Initializes D-Bus service and desktop integration.
             /// </summary>
             public async Task InitializeAsync()
-            {                
+            {
                 // Resolve dotnet executable path
                 var dotnet = InstallPath().Replace("\n", string.Empty);
 
                 if (string.IsNullOrWhiteSpace(dotnet))
-                    throw new Exception("Unable to find installed dotnet path");
+                    throw new InvalidOperationException("Unable to find installed dotnet path");
 
                 //When using ConfigureEssentials
                 //We need the main window to set the WM_CLASS property,
@@ -92,7 +92,7 @@ namespace Avalonia.Controls.Maui.Essentials
 
                 // Register D-Bus service and desktop actions
                 await RegisterDBusService(dotnet, dll);
-                await RegisterDesktopFiles(actions, dotnet, dll);
+                await RegisterDesktopFiles(dotnet, dll);
             }
 
             /// <summary>
@@ -167,9 +167,11 @@ Exec={dotnet} {dll}
             /// Creates a .desktop file with custom actions.
             /// These appear in Linux desktop menus (e.g., right-click app icon).
             /// </summary>
-            private async Task RegisterDesktopFiles(IEnumerable<AppAction> actions, string dotnet, string dll)
+            private async Task RegisterDesktopFiles(string dotnet, string dll)
             {
                 var name = Assembly.GetEntryAssembly()?.GetName().Name;
+                if(string.IsNullOrWhiteSpace(name))
+                    throw new InvalidOperationException("Unable to determine application name from entry assembly");
 
                 string desktopFile = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
