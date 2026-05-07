@@ -23,6 +23,12 @@
     <PackageReference Include="Microsoft.Maui.Core" Version="$(MauiVersion)" />
   </ItemGroup>
 
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'browser'">
+    <PackageReference Include="Tmds.DBus" Version="0.92.0">
+      <Aliases>TmdsDBus</Aliases>
+    </PackageReference>
+  </ItemGroup>
+
   <!-- Browser: exclude default (file-based) implementations -->
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'browser'">
     <Compile Remove="**/*.Default.cs" />
@@ -33,7 +39,6 @@
   </ItemGroup>
 
   <ItemGroup Condition=" ('$(IsPackable)' == 'true')">
-    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath=""
-      Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
 </Project>

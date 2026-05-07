@@ -1,0 +1,44 @@
+<ContentPage x:Class="ControlGallery.Pages.AppActionsPage"
+             Title="AppActions">
+
+    <VerticalStackLayout Padding="20" Spacing="12">
+
+        <!-- Entry for new action -->
+        <Entry x:Name="ActionTitleEntry"
+               Placeholder="Enter action title" />
+
+        <Entry x:Name="ActionIdEntry"
+               Placeholder="Enter action ID" />
+
+        <!-- Buttons -->
+        <HorizontalStackLayout Spacing="10">
+            <Button x:Name="AddActionbutton" Text="Add Action"
+                    Clicked="OnAddClicked" />
+
+            <Button x:Name="RemoveSelectedButton" Text="Remove Selected"
+                    Clicked="OnRemoveClicked" />
+        </HorizontalStackLayout>
+
+        <!-- List of actions -->
+        <CollectionView x:Name="ActionsList"
+                        SelectionMode="Single"
+                        HeightRequest="250">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="Gray" Padding="10" Margin="5">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Title}" FontAttributes="Bold"/>
+                            <Label Text="{Binding Id}" FontSize="12"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Last triggered action -->
+        <Label x:Name="LastActionLabel"
+               Text="Last triggered: None"
+               FontAttributes="Italic" />
+
+    </VerticalStackLayout>
+</ContentPage>

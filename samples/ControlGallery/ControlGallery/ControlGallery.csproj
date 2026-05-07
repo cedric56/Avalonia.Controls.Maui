@@ -88,6 +88,12 @@
 		<ProjectReference Include="../../../src/Avalonia.Controls.Maui.SourceGenerators/Avalonia.Controls.Maui.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" GlobalPropertiesToRemove="PublishAot" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <MauiXaml Update="Pages\AppActionsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 	<Import Project="$(MauiSrcDirectory)Avalonia.Controls.Maui.props" />
 	<Import Condition="'$(TargetFramework)' == '$(DotNetTfm)'" Project="$(MauiSrcDirectory)Avalonia.Controls.Maui.Desktop/Avalonia.Controls.Maui.Desktop.props" />
 	<Import Project="$(MauiSrcDirectory)Avalonia.Controls.Maui.targets" />
