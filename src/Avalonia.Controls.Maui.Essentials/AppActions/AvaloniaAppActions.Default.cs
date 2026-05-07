@@ -41,32 +41,10 @@ namespace Avalonia.Controls.Maui.Essentials
             if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
                 throw new InvalidOperationException("Only IClassicDesktopStyleApplicationLifetime is supported");
 
-            //When using ConfigureEssentials
-            //We need the main window to set the WM_CLASS property,
-            //so we wait until it's initialized
-            var window = await WaitForMainWindowAsync(desktop);
-
             // We create a new instance of the Current class, to get a unique WMClass
             // this will force refreshing shortcuts in the desktop environment
-            var current = new Current(window, actions, AppActionActivated);
+            var current = new Current(desktop, actions, AppActionActivated);
             await current.InitializeAsync();
-        }
-
-        private static async Task<Window> WaitForMainWindowAsync(IClassicDesktopStyleApplicationLifetime desktop, int timeoutMs = 10000)
-        {
-            var elapsed = 0;
-            const int delay = 50;
-
-            while (desktop.MainWindow == null)
-            {
-                await Task.Delay(delay);
-                elapsed += delay;
-
-                if (elapsed >= timeoutMs)
-                    throw new TimeoutException("MainWindow was not initialized in time");
-            }
-
-            return desktop.MainWindow;
         }
 
         /// <summary>
@@ -75,7 +53,7 @@ namespace Avalonia.Controls.Maui.Essentials
         /// - Creating desktop entry files
         /// - Handling action invocation
         /// </summary>
-        class Current(Window window, IEnumerable<AppAction> actions, EventHandler<AppActionEventArgs>? onAppAction) : IAppActionsDBus
+        class Current(IClassicDesktopStyleApplicationLifetime desktop, IEnumerable<AppAction> actions, EventHandler<AppActionEventArgs>? onAppAction) : IAppActionsDBus
         {
             const string InterfaceName = "com.essentials.";
 
@@ -102,6 +80,11 @@ namespace Avalonia.Controls.Maui.Essentials
                 if (string.IsNullOrWhiteSpace(dotnet))
                     throw new Exception("Unable to find installed dotnet path");
 
+                //When using ConfigureEssentials
+                //We need the main window to set the WM_CLASS property,
+                //so we wait until it's initialized
+                var window= await WaitForMainWindowAsync(desktop);
+
                 // Set WM_CLASS so desktop environments associate actions with the window
                 X11Properties.SetWmClass(window, uid);
 
@@ -110,6 +93,23 @@ namespace Avalonia.Controls.Maui.Essentials
                 // Register D-Bus service and desktop actions
                 await RegisterDBusService(dotnet, dll);
                 await RegisterDesktopFiles(actions, dotnet, dll);
+            }
+
+            private static async Task<Window> WaitForMainWindowAsync(IClassicDesktopStyleApplicationLifetime desktop, int timeoutMs = 10000)
+            {
+                var elapsed = 0;
+                const int delay = 50;
+
+                while (desktop.MainWindow == null)
+                {
+                    await Task.Delay(delay);
+                    elapsed += delay;
+
+                    if (elapsed >= timeoutMs)
+                        throw new TimeoutException("MainWindow was not initialized in time");
+                }
+
+                return desktop.MainWindow;
             }
 
             /// <summary>
@@ -145,18 +145,15 @@ Exec={dotnet} {dll}
                 await connection.RegisterServiceAsync(currentInterface, ServiceRegistrationOptions.ReplaceExisting);
 
                 // Cleanup on app exit
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                desktop.Exit += Desktop_Exit;
+
+                void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
                 {
-                    desktop.Exit += Desktop_Exit;
+                    desktop.Exit -= Desktop_Exit;
+                    connection.Dispose();
 
-                    void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-                    {
-                        desktop.Exit -= Desktop_Exit;
-                        connection.Dispose();
-
-                        if (File.Exists(dbusFile))
-                            File.Delete(dbusFile);
-                    }
+                    if (File.Exists(dbusFile))
+                        File.Delete(dbusFile);
                 }
             }
 
@@ -199,17 +196,14 @@ Exec=gdbus call --session --dest {currentInterface} --object-path {currentObject
                 Process.Start("chmod", $"+x {desktopFile}");
 
                 // Cleanup on exit
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                desktop.Exit += Desktop_Exit;
+
+                void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
                 {
-                    desktop.Exit += Desktop_Exit;
+                    desktop.Exit -= Desktop_Exit;
 
-                    void Desktop_Exit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-                    {
-                        desktop.Exit -= Desktop_Exit;
-
-                        if (File.Exists(desktopFile))
-                            File.Delete(desktopFile);
-                    }
+                    if (File.Exists(desktopFile))
+                        File.Delete(desktopFile);
                 }
             }
 
