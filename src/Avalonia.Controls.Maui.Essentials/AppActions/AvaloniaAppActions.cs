@@ -1,5 +1,4 @@
 ﻿using Microsoft.Maui.ApplicationModel;
-using System.Text;
 
 namespace Avalonia.Controls.Maui.Essentials
 {
@@ -18,14 +17,13 @@ namespace Avalonia.Controls.Maui.Essentials
             return Task.FromResult(_actions ??= Array.Empty<AppAction>());
         }
 
-        public Task SetAsync(IEnumerable<AppAction> actions)
+        public async Task SetAsync(IEnumerable<AppAction> actions)
         {
             if (!IsSupported)
                 throw new FeatureNotSupportedException();
 
-            _actions = actions;
-
-            return PlatformSetAsync(actions);
+            if (await PlatformSetAsync(actions))
+                _actions = actions;
         }
     }
 }

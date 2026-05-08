@@ -6,7 +6,7 @@ namespace Avalonia.Controls.Maui.Essentials
     {
         public bool PlatformIsSupported() => false;
 
-        public Task PlatformSetAsync(IEnumerable<AppAction> actions) =>
+        public Task<bool> PlatformSetAsync(IEnumerable<AppAction> actions) =>
             throw new FeatureNotSupportedException();
     }
 }

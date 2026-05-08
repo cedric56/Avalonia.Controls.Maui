@@ -33,18 +33,24 @@ namespace Avalonia.Controls.Maui.Essentials
         /// <summary>
         /// Registers app actions on Linux using D-Bus and .desktop files.
         /// </summary>
-        public async Task PlatformSetAsync(IEnumerable<AppAction> actions)
+        public async Task<bool> PlatformSetAsync(IEnumerable<AppAction> actions)
         {
-            if (Application.Current?.ApplicationLifetime == null)
-                throw new InvalidOperationException("ApplicationLifetime is not initialized");
+            if (OperatingSystem.IsLinux())
+            {
+                if (Application.Current?.ApplicationLifetime == null)
+                    throw new InvalidOperationException("ApplicationLifetime is not initialized");
 
-            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
-                throw new InvalidOperationException("Only IClassicDesktopStyleApplicationLifetime is supported");
+                if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+                    throw new InvalidOperationException("Only IClassicDesktopStyleApplicationLifetime is supported");
 
-            // We create a new instance of the Current class, to get a unique WMClass
-            // this will force refreshing shortcuts in the desktop environment
-            var current = new Current(desktop, actions, AppActionActivated);
-            await current.InitializeAsync();
+                // We create a new instance of the Current class, to get a unique WMClass
+                // this will force refreshing shortcuts in the desktop environment
+                var current = new Current(desktop, actions, AppActionActivated);
+                await current.InitializeAsync();
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
