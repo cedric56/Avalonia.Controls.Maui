@@ -55,6 +55,10 @@ partial class AvaloniaGeolocation : IGeolocation
     internal void OnLocationChanged(GeolocationLocationChangedEventArgs e) =>
         LocationChanged?.Invoke(null, e);
 
-    internal void OnLocationError(GeolocationError geolocationError) =>
+    internal void OnLocationError(GeolocationError geolocationError)
+    {
+        PlatformStopListeningForeground();
+
         ListeningFailed?.Invoke(null, new GeolocationListeningFailedEventArgs(geolocationError));
+    }
 }
