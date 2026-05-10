@@ -1,0 +1,18 @@
+<ContentPage x:Class="ControlGallery.Pages.FlashLightPage"
+             Title="FlashLight">
+    <VerticalStackLayout Spacing="20" 
+                         VerticalOptions="Center" 
+                         HorizontalOptions="Center"
+                         Padding="20">
+
+        <Label x:Name="IsSupportedLabel"
+               Text="Is Supported"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+
+        <Button x:Name="ToggleButton"
+                Text="Toggle Flashlight"
+                Clicked="OnToggleFlashlightClicked"/>
+    </VerticalStackLayout>
+</ContentPage>

@@ -103,6 +103,7 @@ public partial class MainPage : FlyoutPage
         [typeof(ScreenshotPage)] = () => new ScreenshotPage(),
         [typeof(PreferencesPage)] = () => new PreferencesPage(),
         [typeof(FilePickerPage)] = () => new FilePickerPage(),
+        [typeof(FlashLightPage)] = () => new FlashLightPage(),
         // Settings
         [typeof(ThemePage)] = () => new ThemePage(),
         // Embedding
@@ -281,6 +282,7 @@ public partial class MainPage : FlyoutPage
             new SampleGroup("Essentials", new List<SampleItem>
             {
                 new("File Picker", "Pick files from the device", typeof(FilePickerPage)),
+                new("Flashlight", "Turn on and off flashlight", typeof(FlashLightPage)),
                 new("Preferences", "Key/value storage for app settings", typeof(PreferencesPage)),
                 new("Screenshot", "Capture window screenshots", typeof(ScreenshotPage)),
             }),
