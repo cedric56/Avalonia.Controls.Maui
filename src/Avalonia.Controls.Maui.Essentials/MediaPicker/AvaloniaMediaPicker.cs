@@ -60,8 +60,7 @@ public class AvaloniaMediaPicker : IMediaPicker
         if (results.Count == 0)
             return null;
 
-        var path = results[0].TryGetLocalPath();
-        return path is not null ? new FileResult(path) : null;
+        return new AvaloniaFileResult(results[0]);
     }
 
     /// <summary>
@@ -77,13 +76,12 @@ public class AvaloniaMediaPicker : IMediaPicker
         var pickerOptions = CreatePhotoPickerOptions(options, allowMultiple: true);
         var results = await topLevel.StorageProvider.OpenFilePickerAsync(pickerOptions).ConfigureAwait(false);
 
-        var fileResults = new List<FileResult>();
+        if (results.Count == 0)
+            return [];
+
+        var fileResults = new List<FileResult>(results.Count);
         foreach (var result in results)
-        {
-            var path = result.TryGetLocalPath();
-            if (path is not null)
-                fileResults.Add(new FileResult(path));
-        }
+            fileResults.Add(new AvaloniaFileResult(result));
 
         return fileResults;
     }
@@ -104,8 +102,7 @@ public class AvaloniaMediaPicker : IMediaPicker
         if (results.Count == 0)
             return null;
 
-        var path = results[0].TryGetLocalPath();
-        return path is not null ? new FileResult(path) : null;
+        return new AvaloniaFileResult(results[0]);
     }
 
     /// <summary>
@@ -121,13 +118,12 @@ public class AvaloniaMediaPicker : IMediaPicker
         var pickerOptions = CreateVideoPickerOptions(options, allowMultiple: true);
         var results = await topLevel.StorageProvider.OpenFilePickerAsync(pickerOptions).ConfigureAwait(false);
 
-        var fileResults = new List<FileResult>();
+        if (results.Count == 0)
+            return [];
+
+        var fileResults = new List<FileResult>(results.Count);
         foreach (var result in results)
-        {
-            var path = result.TryGetLocalPath();
-            if (path is not null)
-                fileResults.Add(new FileResult(path));
-        }
+            fileResults.Add(new AvaloniaFileResult(result));
 
         return fileResults;
     }
